@@ -6,17 +6,23 @@ export class Secret {
   id: string;
 
   @Column()
-  encryptedContent: string;
+  encryptedContent: string; // Contient le contenu chiffré
 
   @Column()
-  passwordHash: string;
+  salt: string; // Sel utilisé pour dériver la clé à partir du mot de passe
+
+  @Column()
+  iv: string; // Vecteur d'initialisation utilisé pour AES
+
+  @Column()
+  authTag: string; // Tag d'authentification pour AES-GCM
 
   @Column({ nullable: true })
-  expirationDate: Date;
+  expirationDate: Date; // Date d'expiration du secret (facultatif)
 
   @Column({ default: 1 })
-  maxRetrievals: number;
+  maxRetrievals: number; // Nombre maximum de récupérations autorisées
 
   @Column({ default: 0 })
-  retrievalCount: number;
+  retrievalCount: number; // Nombre de fois que le secret a été récupéré
 }

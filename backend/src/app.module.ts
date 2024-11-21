@@ -1,8 +1,9 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import * as dotenv from 'dotenv';
-import { SecretsModule } from './secrets/secrets.module';
 import { AppController } from './app.controller';
+import { EncryptionService } from './secrets/encryption.service';
+import { SecretsModule } from './secrets/secrets.module';
 
 dotenv.config();
 
@@ -16,10 +17,11 @@ dotenv.config();
       password: process.env.DATABASE_PASSWORD,
       database: process.env.DATABASE_NAME,
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
-      synchronize: true,
+      synchronize: true, // changer en prod par false et remplacer par des migrations
     }),
     SecretsModule,
   ],
   controllers: [AppController],
+  providers: [EncryptionService],
 })
 export class AppModule {}

@@ -6,9 +6,9 @@ build:
 up:
 	docker-compose up -d
 
-# Arrêter tous les services
+# Arrêter tous les services et supprime les volumes
 down:
-	docker-compose down
+	docker-compose down -v
 
 # Regénérer les conteneurs
 rebuild:
@@ -19,11 +19,3 @@ rebuild:
 # Afficher les logs
 logs:
 	docker-compose logs -f
-
-# Accéder au bash du backend
-backend exec-bash:
-	docker exec -it backend bash
-
-# Accéder au bash du frontend
-frontend exec-bash:
-	docker exec -it frontend bash
