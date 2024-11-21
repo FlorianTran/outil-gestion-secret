@@ -20,8 +20,8 @@ export class Secret {
   @Column({ nullable: true })
   expirationDate: Date; // Date d'expiration du secret (facultatif)
 
-  @Column({ default: 1 })
-  maxRetrievals: number; // Nombre maximum de récupérations autorisées
+  @Column({ nullable: true })
+  maxRetrievals: number; // Nombre maximal de récupérations du secret (facultatif)
 
   @Column({ default: 0 })
   retrievalCount: number; // Nombre de fois que le secret a été récupéré
