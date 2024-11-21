@@ -7,13 +7,14 @@ export class EncryptionService {
   private readonly iterations = 100000; // Nombre d'itérations pour la dérivation de clé
   private readonly keyLength = 32; // Longueur de la clé en octets
 
-  /*
+  /**
    * Chiffre un secret avec un mot de passe
+   *
    * @returns {
-   *  encrypted: string, // Le secret chiffré
-   *  iv: string, // Vecteur d'initialisation nécessaire pour déchiffrer le secret garanti que 2 chiffrages du même secret donneront des résultats différents
-   *  salt: string, // Sel utilisé pour dériver la clé
-   *  authTag: string // Tag d'authentification nécessaire pour vérifier l'intégrité du secret
+   * - encrypted: string, // Le secret chiffré
+   * - iv: string, // Vecteur d'initialisation nécessaire pour déchiffrer le secret garanti que 2 chiffrages du même secret donneront des résultats différents
+   * - salt: string, // Sel utilisé pour dériver la clé
+   * - authTag: string // Tag d'authentification nécessaire pour vérifier l'intégrité du secret
    * }
    */
   encrypt(
@@ -49,6 +50,8 @@ export class EncryptionService {
 
   /**
    * Déchiffre un secret avec un mot de passe.
+   *
+   * @returns Secret déchiffré
    */
   decrypt(
     encrypted: string,

@@ -12,7 +12,7 @@ down:
 
 # Regénérer les conteneurs
 rebuild:
-	docker-compose down
+	docker-compose down -v
 	docker-compose build
 	docker-compose up -d
 
