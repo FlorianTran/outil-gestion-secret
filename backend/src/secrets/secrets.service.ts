@@ -27,11 +27,9 @@ export class SecretsService {
 
     const secret = await this.findSecretById(id);
 
-    this.validateRetrieval(secret);
+    await this.validateAndHandleRetrieval(secret);
 
     const decryptedContent = this.decryptSecret(secret, password);
-
-    await this.handleRetrieval(secret);
 
     const isExpired = await this.handleExpiration(secret);
     if (isExpired) {
@@ -64,14 +62,25 @@ export class SecretsService {
   }
 
   /**
-   * Vérifie si un secret a dépassé le nombre maximum de récupérations
+   * Valide et gère les récupérations d'un secret
+   * @param secret Le secret à traiter
    */
-  private validateRetrieval(secret: Secret): void {
-    if (secret.maxRetrievals !== null && secret.maxRetrievals <= 0) {
+  private async validateAndHandleRetrieval(secret: Secret): Promise<void> {
+    if (secret.maxRetrievals === null) {
+      return; // Pas de limite de récupération
+    }
+
+    if (secret.maxRetrievals <= 0) {
+      await this.secretsRepository.remove(secret); // Supprime si max atteint
       throw new ForbiddenException(
         'This secret has reached its maximum number of retrievals',
       );
     }
+
+    secret.maxRetrievals -= 1;
+    secret.retrievalCount += 1;
+
+    await this.secretsRepository.save(secret); // Sauvegarde les modifications
   }
 
   /**
@@ -88,22 +97,6 @@ export class SecretsService {
       );
     } catch {
       throw new BadRequestException('Invalid password provided');
-    }
-  }
-
-  /**
-   * Met à jour les compteurs de récupération du secret
-   */
-  private async handleRetrieval(secret: Secret): Promise<void> {
-    if (secret.maxRetrievals === null) return;
-
-    secret.maxRetrievals -= 1;
-    secret.retrievalCount += 1;
-
-    if (secret.maxRetrievals <= 0) {
-      await this.secretsRepository.remove(secret);
-    } else {
-      await this.secretsRepository.save(secret);
     }
   }
 
