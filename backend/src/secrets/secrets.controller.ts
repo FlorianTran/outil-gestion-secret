@@ -35,6 +35,8 @@ export class SecretsController {
       throw new BadRequestException('Content and password are required');
     }
 
+    this.secretsService.validateMaxRetrievals(body.maxRetrievals);
+
     const { encrypted, iv, salt, authTag } = this.encryptionService.encrypt(
       body.content,
       body.password,
