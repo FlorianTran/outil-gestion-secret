@@ -62,25 +62,34 @@ export class SecretsService {
   }
 
   /**
-   * Valide et gère les récupérations d'un secret
+   * Valide et gère les règles de récupération du secret
    * @param secret Le secret à traiter
    */
   private async validateAndHandleRetrieval(secret: Secret): Promise<void> {
-    if (secret.maxRetrievals === null) {
-      return; // Pas de limite de récupération
+    if (secret.maxRetrievals !== null) {
+      if (secret.maxRetrievals <= 0) {
+        await this.secretsRepository.remove(secret); // Supprime si max atteint
+        throw new ForbiddenException(
+          'This secret has reached its maximum number of retrievals',
+        );
+      }
+
+      secret.maxRetrievals -= 1;
     }
 
-    if (secret.maxRetrievals <= 0) {
-      await this.secretsRepository.remove(secret); // Supprime si max atteint
-      throw new ForbiddenException(
-        'This secret has reached its maximum number of retrievals',
+    secret.retrievalCount += 1;
+    await this.secretsRepository.save(secret); // Sauvegarde les modifications
+  }
+
+  /**
+   * Vérifie si maxRetrievals est valide lors de la création du secret
+   */
+  public validateMaxRetrievals(maxRetrievals?: number): void {
+    if (maxRetrievals !== undefined && maxRetrievals <= 0) {
+      throw new BadRequestException(
+        `Invalid maxRetrievals value: ${maxRetrievals}. It must be a positive number.`,
       );
     }
-
-    secret.maxRetrievals -= 1;
-    secret.retrievalCount += 1;
-
-    await this.secretsRepository.save(secret); // Sauvegarde les modifications
   }
 
   /**
