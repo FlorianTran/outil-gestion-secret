@@ -105,9 +105,9 @@ export class SecretsService {
 
     const secret = await this.findSecretById(id);
 
-    await this.validateAndHandleRetrieval(secret);
-
     const decryptedContent = this.decryptSecret(secret, password);
+
+    await this.validateAndHandleRetrieval(secret);
 
     let secretFileData: Buffer | undefined;
 
