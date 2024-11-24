@@ -4,7 +4,6 @@ import * as dotenv from 'dotenv';
 import { AppController } from './app.controller';
 import { EncryptionService } from './secrets/encryption.service';
 import { SecretsModule } from './secrets/secrets.module';
-import { DataSource } from 'typeorm';
 
 dotenv.config();
 
@@ -25,11 +24,4 @@ dotenv.config();
   controllers: [AppController],
   providers: [EncryptionService],
 })
-export class AppModule {
-  constructor(private readonly dataSource: DataSource) {
-    console.log(
-      'Loaded entities:',
-      dataSource.entityMetadatas.map((e) => e.name),
-    );
-  }
-}
+export class AppModule {}

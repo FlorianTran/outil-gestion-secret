@@ -3,12 +3,15 @@ import {
   Body,
   Controller,
   Get,
+  NotFoundException,
   Param,
   Post,
+  Res,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { Response } from 'express';
 import { SecretsService } from './secrets.service';
 
 @Controller('secrets')
@@ -61,5 +64,34 @@ export class SecretsController {
     const secret = await this.secretsService.retrieveSecret(id, body.password);
 
     return secret;
+  }
+
+  /**
+   * Endpoint pour télécharger un fichier associé à un secret
+   */
+  @Get(':id/download')
+  async downloadFile(
+    @Param('id') id: string,
+    @Body() body: { password: string },
+    @Res() res: Response,
+  ) {
+    if (!body.password) {
+      throw new BadRequestException('Password is required');
+    }
+
+    const secret = await this.secretsService.retrieveSecret(id, body.password);
+
+    if (!secret.file) {
+      throw new NotFoundException('No file associated with this secret');
+    }
+
+    // Déchiffrement du fichier
+    const decryptedFile = Buffer.from(secret.file, 'base64');
+
+    // En-têtes pour téléchargement
+    res.setHeader('Content-Disposition', `attachment; filename="file_${id}"`);
+    res.setHeader('Content-Type', 'application/octet-stream');
+
+    return res.send(decryptedFile);
   }
 }

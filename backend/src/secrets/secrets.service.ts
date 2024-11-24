@@ -52,7 +52,7 @@ export class SecretsService {
       },
       expirationDate,
       maxRetrievals,
-      file: secretFileEntity, // Associer le fichier au secret
+      file: secretFileEntity,
     });
 
     // Sauvegarder dans la base de données
@@ -74,10 +74,9 @@ export class SecretsService {
       throw new BadRequestException('No file buffer provided.');
     }
 
-    console.log('File content:', file.buffer.toString());
-
     // Chiffrement du fichier
     const encryptedFile = this.encryptionService.encrypt(
+      // Le buffer est utilisé pour manipuler les données binaires
       file.buffer.toString('base64'), // Transforme en base64 pour le chiffrement
       password,
     );
