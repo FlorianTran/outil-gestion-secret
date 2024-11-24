@@ -2,7 +2,6 @@ import {
   BadRequestException,
   Body,
   Controller,
-  Get,
   NotFoundException,
   Param,
   Post,
@@ -53,7 +52,7 @@ export class SecretsController {
   /**
    * Endpoint pour récupérer un secret par son ID
    */
-  @Get(':id')
+  @Post(':id')
   async getSecret(@Param('id') id: string, @Body() body: { password: string }) {
     // Validation des entrées requises
     if (!body.password) {
@@ -69,7 +68,7 @@ export class SecretsController {
   /**
    * Endpoint pour télécharger un fichier associé à un secret
    */
-  @Get(':id/download')
+  @Post(':id/download')
   async downloadFile(
     @Param('id') id: string,
     @Body() body: { password: string },
