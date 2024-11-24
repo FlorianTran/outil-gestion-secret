@@ -1,14 +1,15 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { EncryptionService } from './encryption.service';
+import { SecretFile } from './secret-file.entity';
+import { Secret } from './secret.entity';
 import { SecretsController } from './secrets.controller';
 import { SecretsService } from './secrets.service';
-import { EncryptionService } from './encryption.service';
-import { Secret } from './secret.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Secret])],
+  imports: [TypeOrmModule.forFeature([Secret, SecretFile])], // Supprime EncryptionDetails
   controllers: [SecretsController],
   providers: [SecretsService, EncryptionService],
-  exports: [EncryptionService],
+  exports: [SecretsService],
 })
 export class SecretsModule {}

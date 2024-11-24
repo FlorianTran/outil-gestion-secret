@@ -4,6 +4,7 @@ import * as dotenv from 'dotenv';
 import { AppController } from './app.controller';
 import { EncryptionService } from './secrets/encryption.service';
 import { SecretsModule } from './secrets/secrets.module';
+import { DataSource } from 'typeorm';
 
 dotenv.config();
 
@@ -16,7 +17,7 @@ dotenv.config();
       username: process.env.DATABASE_USERNAME,
       password: process.env.DATABASE_PASSWORD,
       database: process.env.DATABASE_NAME,
-      entities: [__dirname + '/**/*.entity{.ts,.js}'],
+      entities: [__dirname + '/**/*.entity{.ts,.js}'], // Inclut toutes les entités
       synchronize: true, // changer en prod par false et remplacer par des migrations
     }),
     SecretsModule,
@@ -24,4 +25,11 @@ dotenv.config();
   controllers: [AppController],
   providers: [EncryptionService],
 })
-export class AppModule {}
+export class AppModule {
+  constructor(private readonly dataSource: DataSource) {
+    console.log(
+      'Loaded entities:',
+      dataSource.entityMetadatas.map((e) => e.name),
+    );
+  }
+}
