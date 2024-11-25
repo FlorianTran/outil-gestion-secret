@@ -60,7 +60,11 @@ export class SecretsController {
     }
 
     // Récupération et déchiffrement du secret via le service
-    const secret = await this.secretsService.retrieveSecret(id, body.password);
+    const secret = await this.secretsService.retrieveSecret(
+      id,
+      body.password,
+      false,
+    );
 
     return secret;
   }
@@ -78,7 +82,11 @@ export class SecretsController {
       throw new BadRequestException('Password is required');
     }
 
-    const secret = await this.secretsService.retrieveSecret(id, body.password);
+    const secret = await this.secretsService.retrieveSecret(
+      id,
+      body.password,
+      true,
+    );
 
     if (!secret.file) {
       throw new NotFoundException('No file associated with this secret');

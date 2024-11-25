@@ -100,14 +100,20 @@ export class SecretsService {
    * @param id Identifiant du secret
    * @param password Mot de passe pour déchiffrer
    */
-  async retrieveSecret(id: string, password: string): Promise<any> {
+  async retrieveSecret(
+    id: string,
+    password: string,
+    isDownload: boolean,
+  ): Promise<any> {
     this.validateInputs(id, password);
 
     const secret = await this.findSecretById(id);
 
     const decryptedContent = this.decryptSecret(secret, password);
 
-    await this.validateAndHandleRetrieval(secret);
+    if (!isDownload) {
+      await this.validateAndHandleRetrieval(secret);
+    }
 
     let secretFileData: Buffer | undefined;
 
