@@ -93,10 +93,13 @@ export class SecretsController {
     }
 
     // Déchiffrement du fichier
-    const decryptedFile = Buffer.from(secret.file, 'base64');
+    const decryptedFile = Buffer.from(secret.file.data, 'base64');
 
-    // En-têtes pour téléchargement
-    res.setHeader('Content-Disposition', `attachment; filename="file_${id}"`);
+    // En-têtes pour téléchargement avec le nom original du fichier
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename="${secret.file.originalName}"`,
+    );
     res.setHeader('Content-Type', 'application/octet-stream');
 
     return res.send(decryptedFile);

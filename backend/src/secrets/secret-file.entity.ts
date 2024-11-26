@@ -9,6 +9,9 @@ export class SecretFile {
   @Column({ type: 'bytea' }) // Utilise 'bytea' pour stocker des fichiers binaires en base de données
   data: Buffer;
 
+  @Column()
+  originalFileName: string;
+
   @Column(() => EncryptionDetails) // Détails de chiffrement pour le fichier
   encryptionDetails: EncryptionDetails;
 }
