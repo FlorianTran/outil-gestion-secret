@@ -1,85 +1,54 @@
 "use client";
 
+import { SecretsService } from '@/lib/secrets-service';
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
+import { RetrieveForm } from './components/retreiveForm';
+import { SecretViewer } from './components/secretViewer';
 
-export default function RetrieveSecretPage() {
-    const [secretId, setSecretId] = useState("");
-    const [password, setPassword] = useState("");
-    const router = useRouter();
+export default function RetrievePage() {
+    const [secret, setSecret] = useState<string | null>(null);
+    const [fileName, setFileName] = useState<string | null>(null);
+    const [fileData, setFileData] = useState<string | null>(null); // For base64 file
+    const [error, setError] = useState<string | null>(null);
+    const [isSecretView, setIsSecretView] = useState(false);
 
-    const handlePaste = async () => {
+    const handleRetrieve = async (id: string, password: string) => {
+        setError(null);
         try {
-            const text = await navigator.clipboard.readText();
-            setSecretId(text);
+            const data = await SecretsService.retrieveSecret({ id, password });
+            setSecret(data.content);
+            if (data.file) {
+                setFileName(data.file.originalName);
+                setFileData(data.file.data); // Base64 encoded
+            }
+            setIsSecretView(true);
         } catch (err) {
-            console.log("Impossible de coller depuis le presse-papiers :", err);
+            console.error(err);
+            setError("Erreur lors de la récupération du secret.");
         }
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        if (secretId && password) {
-            // Redirige vers la page de visualisation avec l'ID et le mot de passe comme paramètres
-            router.push(`/view-secret?id=${encodeURIComponent(secretId)}&password=${encodeURIComponent(password)}`);
-        } else {
-            alert("Veuillez fournir un ID de secret et un mot de passe.");
-        }
+    const handleBack = () => {
+        setIsSecretView(false);
+        setSecret(null);
+        setFileName(null);
+        setFileData(null);
+        setError(null);
     };
 
     return (
-        <div style={{ padding: "2rem" }}>
-            <h1>Récupérer un secret</h1>
-            <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-                <label htmlFor="secretId">ID du secret :</label>
-                <div style={{ display: "flex", gap: "0.5rem" }}>
-                    <input
-                        type="text"
-                        id="secretId"
-                        value={secretId}
-                        onChange={(e) => setSecretId(e.target.value)}
-                        placeholder="Entrez ou collez l'ID ici"
-                        style={{ flex: 1, padding: "0.5rem" }}
-                    />
-                    <button
-                        type="button"
-                        onClick={handlePaste}
-                        style={{
-                            padding: "0.5rem 1rem",
-                            backgroundColor: "#0070f3",
-                            color: "white",
-                            border: "none",
-                            cursor: "pointer",
-                        }}
-                    >
-                        Coller
-                    </button>
-                </div>
-
-                <label htmlFor="password">Mot de passe :</label>
-                <input
-                    type="password"
-                    id="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Entrez votre mot de passe"
-                    style={{ padding: "0.5rem" }}
+        <div>
+            {!isSecretView ? (
+                <RetrieveForm onSubmit={handleRetrieve} error={error} />
+            ) : (
+                <SecretViewer
+                    secret={secret}
+                    fileName={fileName}
+                    fileData={fileData}
+                    onBack={handleBack}
+                    error={error}
                 />
-
-                <button
-                    type="submit"
-                    style={{
-                        padding: "0.5rem 1rem",
-                        backgroundColor: "#0070f3",
-                        color: "white",
-                        border: "none",
-                        cursor: "pointer",
-                        marginTop: "1rem",
-                    }}
-                >
-                    Récupérer le secret
-                </button>
-            </form>
+            )}
         </div>
     );
 }
