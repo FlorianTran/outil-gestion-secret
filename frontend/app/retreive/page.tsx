@@ -1,6 +1,6 @@
 "use client";
 
-import { SecretsService } from '@/lib/secrets-service';
+import { SecretsService } from '@/lib/services/secrets-service';
 import React, { useState } from "react";
 import { RetrieveForm } from './components/retreiveForm';
 import { SecretViewer } from './components/secretViewer';
