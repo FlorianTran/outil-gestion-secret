@@ -28,6 +28,7 @@ interface RetrieveSecretResponse {
   expirationDate: string | null;
   maxRetrievals: number | null;
   retrievalCount: number;
+  createdAt: string;
 }
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
@@ -116,5 +117,28 @@ export const SecretsService = {
     const response = await axios.get(`${BASE_URL}/secrets/count`);
 
     return response.data.count;
+  },
+
+  /**
+   * Récupère les secrets d'un utilisateur par email
+   */
+  async getUserSecrets(
+    email: string,
+    page: number = 1,
+    limit: number = 10,
+    sortBy: string = 'createdAt',
+    order: 'ASC' | 'DESC' = 'ASC',
+  ): Promise<{ data: RetrieveSecretResponse[]; total: number }> {
+    const response = await axios.get<{
+      data: RetrieveSecretResponse[];
+      total: number;
+    }>(`${BASE_URL}/secrets/user-secrets`, {
+      params: { email, page, limit, sortBy, order },
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    return response.data;
   },
 };

@@ -51,6 +51,8 @@ export class SecretsService {
 
     const expirationDate = this.handleLifetime(lifetime);
 
+    const createdAt = new Date();
+
     const secret = this.secretsRepository.create({
       encryptedContent: textEncryption.encrypted,
       encryptionDetails: {
@@ -62,6 +64,7 @@ export class SecretsService {
       maxRetrievals,
       file: secretFileEntity, // Associe directement le fichier
       createdBy: createdBy || null,
+      createdAt,
     });
 
     // Sauvegarde le secret principal et son fichier lié dans une seule transaction
@@ -259,6 +262,7 @@ export class SecretsService {
       expirationDate: secret.expirationDate,
       maxRetrievals: secret.maxRetrievals,
       retrievalCount: secret.retrievalCount,
+      createdAt: secret.createdAt,
     };
   }
 
@@ -280,5 +284,25 @@ export class SecretsService {
   // Méthode pour obtenir le nombre de secrets
   async getSecretCount(): Promise<number> {
     return await this.secretsRepository.count();
+  }
+
+  /**
+   * Récupère les secrets d'un utilisateur avec pagination et tri
+   */
+  async getUserSecrets(
+    email: string,
+    page: number,
+    limit: number,
+    sortBy: string,
+    order: 'ASC' | 'DESC',
+  ): Promise<{ data: Secret[]; total: number }> {
+    const [data, total] = await this.secretsRepository.findAndCount({
+      where: { createdBy: email },
+      order: { [sortBy]: order },
+      take: limit,
+      skip: (page - 1) * limit,
+    });
+
+    return { data, total };
   }
 }

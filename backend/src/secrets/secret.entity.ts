@@ -34,4 +34,7 @@ export class Secret {
 
   @Column({ nullable: true })
   createdBy?: string;
+
+  @Column()
+  createdAt: Date;
 }
