@@ -26,20 +26,20 @@ export default function RootLayout({
   const excludedPaths = ["/auth/login", "/auth/register", "/"]; // Routes sans layout
 
   const shouldExcludeLayout = excludedPaths.includes(pathname);
-
   return (
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased h-screen flex flex-col`}
       >
-        {/* Encapsule tout dans le SessionProvider pour garantir son accessibilité */}
-        <SessionProvider>
-          {/* Affiche la Navbar sauf pour les chemins exclus */}
-          {!shouldExcludeLayout && <Navbar />}
-          <main className={shouldExcludeLayout ? '' : 'flex-grow pt-16'}>
-            {children}
-          </main>
-        </SessionProvider>
+        {!shouldExcludeLayout && <Navbar />}
+        {shouldExcludeLayout ?
+          <main>
+            <SessionProvider>{children}</SessionProvider>
+          </main> :
+
+          <main className="flex-grow pt-16">
+            {<SessionProvider>{children}</SessionProvider>}
+          </main>}
       </body>
     </html>
   );
