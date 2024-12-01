@@ -3,9 +3,9 @@ import * as crypto from 'crypto';
 
 @Injectable()
 export class EncryptionService {
-  private readonly algorithm = 'aes-256-gcm'; // Algorithme de chiffrement
-  private readonly iterations = 100000; // Nombre d'itérations pour la dérivation de clé
-  private readonly keyLength = 32; // Longueur de la clé en octets
+  private readonly algorithm = 'aes-256-gcm';
+  private readonly iterations = 100000;
+  private readonly keyLength = 32;
 
   /**
    * Chiffre un secret avec un mot de passe

@@ -2,15 +2,15 @@
 const nextConfig = {
   reactStrictMode: true,
   devIndicators: {
-    autoPrerender: false, // Désactiver le prerender automatique
+    autoPrerender: false, // Désactiver le prerender automatique 
   },
   env: {
-    PORT: process.env.PORT, // Définir le port explicitement
+    PORT: process.env.PORT,
   },
   // Activer le polling pour les fichiers
   webpack: (config: {
       watchOptions: {
-        poll: number; // Vérifie les changements toutes les 1000ms
+        poll: number;
         aggregateTimeout: number;
       };
     }, { dev }: any) => {

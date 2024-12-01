@@ -169,7 +169,7 @@ export class SecretsService {
   private async validateAndHandleRetrieval(secret: Secret): Promise<void> {
     if (secret.maxRetrievals !== null) {
       if (secret.maxRetrievals <= 0) {
-        await this.secretsRepository.remove(secret); // Supprime si max atteint
+        await this.secretsRepository.remove(secret);
         throw new ForbiddenException(
           'This secret has reached its maximum number of retrievals',
         );
@@ -179,7 +179,7 @@ export class SecretsService {
     }
 
     secret.retrievalCount += 1;
-    await this.secretsRepository.save(secret); // Sauvegarde les modifications
+    await this.secretsRepository.save(secret);
   }
 
   /**
@@ -213,7 +213,7 @@ export class SecretsService {
   private decryptSecretFile(secretFile: SecretFile, password: string): string {
     try {
       return this.encryptionService.decrypt(
-        secretFile.data.toString('base64'), // Transforme le Buffer en base64
+        secretFile.data.toString('base64'),
         password,
         secretFile.encryptionDetails.iv,
         secretFile.encryptionDetails.salt,
@@ -251,9 +251,9 @@ export class SecretsService {
       file: secretFileData
         ? {
             originalName: secret.file.originalFileName,
-            data: secretFileData.toString('base64'), // Convertir le Buffer en base64
+            data: secretFileData.toString('base64'),
           }
-        : null, // Retourne le fichier si présent
+        : null,
       expirationDate: secret.expirationDate,
       maxRetrievals: secret.maxRetrievals,
       retrievalCount: secret.retrievalCount,
@@ -273,5 +273,10 @@ export class SecretsService {
     const expirationDate = new Date();
     expirationDate.setDate(expirationDate.getDate() + lifetime);
     return expirationDate;
+  }
+
+  // Méthode pour obtenir le nombre de secrets
+  async getSecretCount(): Promise<number> {
+    return await this.secretsRepository.count();
   }
 }

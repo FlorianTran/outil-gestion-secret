@@ -30,7 +30,7 @@ interface RetrieveSecretResponse {
   retrievalCount: number;
 }
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
 export const SecretsService = {
   /**
@@ -60,7 +60,7 @@ export const SecretsService = {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
-      }
+      },
     );
 
     return response.data;
@@ -69,7 +69,9 @@ export const SecretsService = {
   /**
    * Récupère un secret par ID
    */
-  async retrieveSecret(data: RetrieveSecretRequest): Promise<RetrieveSecretResponse> {
+  async retrieveSecret(
+    data: RetrieveSecretRequest,
+  ): Promise<RetrieveSecretResponse> {
     const response = await axios.post<RetrieveSecretResponse>(
       `${BASE_URL}/secrets/${data.id}`,
       {
@@ -79,7 +81,7 @@ export const SecretsService = {
         headers: {
           'Content-Type': 'application/json',
         },
-      }
+      },
     );
 
     return response.data;
@@ -89,13 +91,23 @@ export const SecretsService = {
    * Télécharge un fichier associé à un secret
    */
   async downloadSecretFile(id: string, password: string): Promise<Blob> {
-    const response = await axios.post(`${BASE_URL}/secrets/${id}/download`, { password }, {
-      headers: {
-        'Content-Type': 'application/json',
+    const response = await axios.post(
+      `${BASE_URL}/secrets/${id}/download`,
+      { password },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        responseType: 'blob',
       },
-      responseType: 'blob',
-    });
+    );
 
     return response.data;
+  },
+
+  async getSecretCount(): Promise<number> {
+    const response = await axios.get(`${BASE_URL}/secrets/count`);
+
+    return response.data.count;
   },
 };

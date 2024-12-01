@@ -30,15 +30,15 @@ export const authOptions: AuthOptions = {
     async signIn({ user }) {
       if (!user.email) {
         console.error('Connexion refusée : Aucun email trouvé.');
-        return false; // Refuser si l'utilisateur n'a pas d'email
+        return false;
       }
 
       if (!whitelistedEmails.includes(user.email)) {
         console.error(`Connexion refusée : ${user.email} non autorisé.`);
-        return false; // Refuser si l'email n'est pas dans la whitelist
+        return false;
       }
 
-      return true; // Autoriser la connexion
+      return true;
     },
 
     /**
@@ -54,6 +54,5 @@ export const authOptions: AuthOptions = {
   },
 };
 
-// Export des handlers GET et POST pour Next.js 13
 const handler = NextAuth(authOptions);
 export { handler as GET, handler as POST };
