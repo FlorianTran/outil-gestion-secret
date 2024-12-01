@@ -1,10 +1,22 @@
 'use client';
 
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
+  const { data: session } = useSession();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (session) {
+      // Rediriger vers le tableau de bord si déjà connecté
+      router.push("/dashboard");
+    }
+  }, [session, router]);
+
   const handleGoogleLogin = async () => {
-    const res = await signIn("google");
+    await signIn("google", { callbackUrl: "/dashboard" });
   };
 
   return (
