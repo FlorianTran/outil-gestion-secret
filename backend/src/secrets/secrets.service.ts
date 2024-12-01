@@ -30,19 +30,26 @@ export class SecretsService {
     lifetime?: number,
     maxRetrievals?: number,
   ): Promise<Secret> {
-    // Chiffrement du texte
     const textEncryption = this.encryptionService.encrypt(content, password);
 
     let secretFileEntity: SecretFile | undefined;
 
-    // Si un fichier est fourni, le chiffrer et le sauvegarder
     if (file) {
-      secretFileEntity = await this.encryptSecretFile(file, password);
+      const encryptedFile = this.encryptSecretFile(file, password);
+      // Crée l'entité SecretFile mais ne la sauvegarde pas encore
+      secretFileEntity = this.secretFileRepository.create({
+        data: Buffer.from(encryptedFile.encrypted, 'base64'),
+        originalFileName: encryptedFile.originalFileName,
+        encryptionDetails: {
+          iv: encryptedFile.iv,
+          salt: encryptedFile.salt,
+          authTag: encryptedFile.authTag,
+        },
+      });
     }
 
     const expirationDate = this.handleLifetime(lifetime);
 
-    // Créer l'entité Secret
     const secret = this.secretsRepository.create({
       encryptedContent: textEncryption.encrypted,
       encryptionDetails: {
@@ -52,10 +59,10 @@ export class SecretsService {
       },
       expirationDate,
       maxRetrievals,
-      file: secretFileEntity,
+      file: secretFileEntity, // Associe directement le fichier
     });
 
-    // Sauvegarder dans la base de données
+    // Sauvegarde le secret principal et son fichier lié dans une seule transaction
     return await this.secretsRepository.save(secret);
   }
 
@@ -66,33 +73,23 @@ export class SecretsService {
    *
    * @returns Contenu chiffré du fichier
    */
-  async encryptSecretFile(
-    file: Express.Multer.File,
-    password: string,
-  ): Promise<SecretFile> {
+  encryptSecretFile(file: Express.Multer.File, password: string): any {
     if (!file || !file.buffer) {
       throw new BadRequestException('No file buffer provided.');
     }
 
-    // Chiffrement du fichier
     const encryptedFile = this.encryptionService.encrypt(
-      // Le buffer est utilisé pour manipuler les données binaires
-      file.buffer.toString('base64'), // Transforme en base64 pour le chiffrement
+      file.buffer.toString('base64'),
       password,
     );
 
-    // Créer une entité SecretFile
-    const secretFile = this.secretFileRepository.create({
-      data: Buffer.from(encryptedFile.encrypted, 'base64'),
-      encryptionDetails: {
-        iv: encryptedFile.iv,
-        salt: encryptedFile.salt,
-        authTag: encryptedFile.authTag,
-      },
-    });
-
-    // Sauvegarder dans la base de données
-    return await this.secretFileRepository.save(secretFile);
+    return {
+      encrypted: encryptedFile.encrypted,
+      iv: encryptedFile.iv,
+      salt: encryptedFile.salt,
+      authTag: encryptedFile.authTag,
+      originalFileName: file.originalname || 'unknown_file',
+    };
   }
 
   /**
@@ -100,14 +97,20 @@ export class SecretsService {
    * @param id Identifiant du secret
    * @param password Mot de passe pour déchiffrer
    */
-  async retrieveSecret(id: string, password: string): Promise<any> {
+  async retrieveSecret(
+    id: string,
+    password: string,
+    isDownload: boolean,
+  ): Promise<any> {
     this.validateInputs(id, password);
 
     const secret = await this.findSecretById(id);
 
-    await this.validateAndHandleRetrieval(secret);
-
     const decryptedContent = this.decryptSecret(secret, password);
+
+    if (!isDownload) {
+      await this.validateAndHandleRetrieval(secret);
+    }
 
     let secretFileData: Buffer | undefined;
 
@@ -202,8 +205,8 @@ export class SecretsService {
         secret.encryptionDetails.salt,
         secret.encryptionDetails.authTag,
       );
-    } catch {
-      throw new BadRequestException('Invalid password provided');
+    } catch (error) {
+      throw new BadRequestException(`Invalid password provided: ${error}`);
     }
   }
 
@@ -216,9 +219,9 @@ export class SecretsService {
         secretFile.encryptionDetails.salt,
         secretFile.encryptionDetails.authTag,
       );
-    } catch {
+    } catch (error) {
       throw new BadRequestException(
-        'Invalid password provided for file decryption',
+        `Invalid password provided for file decryption: ${error}`,
       );
     }
   }
@@ -245,7 +248,12 @@ export class SecretsService {
     return {
       id: secret.id,
       content,
-      file: secretFileData ? secretFileData : null, // Retourne le fichier si présent
+      file: secretFileData
+        ? {
+            originalName: secret.file.originalFileName,
+            data: secretFileData.toString('base64'), // Convertir le Buffer en base64
+          }
+        : null, // Retourne le fichier si présent
       expirationDate: secret.expirationDate,
       maxRetrievals: secret.maxRetrievals,
       retrievalCount: secret.retrievalCount,

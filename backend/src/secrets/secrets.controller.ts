@@ -2,7 +2,6 @@ import {
   BadRequestException,
   Body,
   Controller,
-  Get,
   NotFoundException,
   Param,
   Post,
@@ -53,7 +52,7 @@ export class SecretsController {
   /**
    * Endpoint pour récupérer un secret par son ID
    */
-  @Get(':id')
+  @Post(':id')
   async getSecret(@Param('id') id: string, @Body() body: { password: string }) {
     // Validation des entrées requises
     if (!body.password) {
@@ -61,7 +60,11 @@ export class SecretsController {
     }
 
     // Récupération et déchiffrement du secret via le service
-    const secret = await this.secretsService.retrieveSecret(id, body.password);
+    const secret = await this.secretsService.retrieveSecret(
+      id,
+      body.password,
+      false,
+    );
 
     return secret;
   }
@@ -69,7 +72,7 @@ export class SecretsController {
   /**
    * Endpoint pour télécharger un fichier associé à un secret
    */
-  @Get(':id/download')
+  @Post(':id/download')
   async downloadFile(
     @Param('id') id: string,
     @Body() body: { password: string },
@@ -79,17 +82,24 @@ export class SecretsController {
       throw new BadRequestException('Password is required');
     }
 
-    const secret = await this.secretsService.retrieveSecret(id, body.password);
+    const secret = await this.secretsService.retrieveSecret(
+      id,
+      body.password,
+      true,
+    );
 
     if (!secret.file) {
       throw new NotFoundException('No file associated with this secret');
     }
 
     // Déchiffrement du fichier
-    const decryptedFile = Buffer.from(secret.file, 'base64');
+    const decryptedFile = Buffer.from(secret.file.data, 'base64');
 
-    // En-têtes pour téléchargement
-    res.setHeader('Content-Disposition', `attachment; filename="file_${id}"`);
+    // En-têtes pour téléchargement avec le nom original du fichier
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename="${secret.file.originalName}"`,
+    );
     res.setHeader('Content-Type', 'application/octet-stream');
 
     return res.send(decryptedFile);

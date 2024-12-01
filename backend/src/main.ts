@@ -3,6 +3,14 @@ import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  await app.listen(process.env.PORT ?? 3000);
+
+  // Configuration CORS
+  app.enableCors({
+    origin: process.env.NEXTAUTH_URL, // URL de votre frontend Next.js
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    credentials: true, // Si vous utilisez des cookies ou l'authentification
+  });
+
+  await app.listen(3000);
 }
 bootstrap();

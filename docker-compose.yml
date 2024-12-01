@@ -1,13 +1,15 @@
-version: '3.8'
-
 services:
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
+      target: dev # Étape de développement
     container_name: backend
     ports:
-      - "3000:3000"
+      - "3000:3000" # Backend sur le port 3000
+    volumes:
+      - ./backend:/app # Synchronisation des fichiers locaux
+      - /app/node_modules # Préserver les node_modules dans le conteneur
     environment:
       DATABASE_HOST: postgres
       DATABASE_PORT: 5432
@@ -22,9 +24,16 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      target: dev # Utiliser l'étape dev pour le frontend
     container_name: frontend
     ports:
-      - "3001:3001"
+      - "3001:3001" # Frontend sur le port 3001
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
     depends_on:
       - backend
 
@@ -44,7 +53,6 @@ services:
       retries: 5
     volumes:
       - postgres_data:/var/lib/postgresql/data
-
 
 volumes:
   postgres_data:

@@ -19,9 +19,9 @@ export class Secret {
   @Column(() => EncryptionDetails) // Détails de chiffrement pour le texte
   encryptionDetails: EncryptionDetails;
 
-  @OneToOne(() => SecretFile, { cascade: true }) // Relation avec SecretFile
+  @OneToOne(() => SecretFile, { cascade: true, eager: true, nullable: true })
   @JoinColumn()
-  file?: SecretFile;
+  file: SecretFile;
 
   @Column({ nullable: true })
   expirationDate: Date;
