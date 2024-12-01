@@ -17,7 +17,7 @@ export default function Navbar() {
       <ul className="flex gap-6 list-none">
         <li>
           <p className='text-sm font-light'>
-            {secretsCount} Secrets
+            Nombre de Secret: {secretsCount}
           </p>
         </li>
         <li>
