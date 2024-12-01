@@ -34,9 +34,12 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
 export const SecretsService = {
   /**
-   * Crée un secret (avec ou sans fichier)
+   * Crée un secret (avec ou sans fichier, avec ou sans utilisateur connecté)
    */
-  async createSecret(data: CreateSecretRequest): Promise<CreateSecretResponse> {
+  async createSecret(
+    data: CreateSecretRequest,
+    session?: { email: string },
+  ): Promise<CreateSecretResponse> {
     const formData = new FormData();
     formData.append('content', data.content);
     formData.append('password', data.password);
@@ -51,6 +54,10 @@ export const SecretsService = {
 
     if (data.file) {
       formData.append('file', data.file);
+    }
+
+    if (session?.email) {
+      formData.append('createdBy', session.email); // Ajout de l'utilisateur connecté
     }
 
     const response = await axios.post<CreateSecretResponse>(

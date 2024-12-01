@@ -31,6 +31,7 @@ export class SecretsController {
       password: string;
       lifetime?: number;
       maxRetrievals?: number;
+      createdBy?: string;
     },
   ) {
     if (!body.content || !body.password) {
@@ -45,6 +46,7 @@ export class SecretsController {
       body.password,
       body.lifetime,
       body.maxRetrievals,
+      body.createdBy,
     );
 
     return { message: 'Secret created successfully', id: secret.id };

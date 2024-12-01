@@ -29,6 +29,7 @@ export class SecretsService {
     password: string,
     lifetime?: number,
     maxRetrievals?: number,
+    createdBy?: string | null,
   ): Promise<Secret> {
     const textEncryption = this.encryptionService.encrypt(content, password);
 
@@ -60,6 +61,7 @@ export class SecretsService {
       expirationDate,
       maxRetrievals,
       file: secretFileEntity, // Associe directement le fichier
+      createdBy: createdBy || null,
     });
 
     // Sauvegarde le secret principal et son fichier lié dans une seule transaction
