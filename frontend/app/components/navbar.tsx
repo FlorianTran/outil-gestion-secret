@@ -2,8 +2,11 @@
 
 import Link from "next/link";
 import "../globals.css";
+import { SecretsService } from '@/lib/services/secrets-service';
 
 export default function Navbar() {
+  const secretsCount = SecretsService.getSecretCount();
+
   return (
     <nav className="flex justify-between items-center px-6 py-4 text-white fixed top-0 w-full shadow-md z-50 h-16">
       <div>
@@ -12,6 +15,11 @@ export default function Navbar() {
         </Link>
       </div>
       <ul className="flex gap-6 list-none">
+        <li>
+          <p className='text-sm font-light'>
+            {secretsCount} Secrets
+          </p>
+        </li>
         <li>
           <Link href="/dashboard" className="text-white no-underline">
             Dashboard
