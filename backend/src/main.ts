@@ -8,7 +8,7 @@ async function bootstrap() {
   app.enableCors({
     origin: process.env.FRONTEND_URL, // URL de votre frontend Next.js
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-    credentials: true, // Si vous utilisez des cookies ou l'authentification
+    credentials: true,
   });
 
   await app.listen(3000);

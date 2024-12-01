@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Get,
   NotFoundException,
   Param,
   Post,
@@ -103,5 +104,12 @@ export class SecretsController {
     res.setHeader('Content-Type', 'application/octet-stream');
 
     return res.send(decryptedFile);
+  }
+
+  @Get('count')
+  async getSecretCount() {
+    const count = await this.secretsService.getSecretCount();
+
+    return { count };
   }
 }

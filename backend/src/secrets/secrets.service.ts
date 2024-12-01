@@ -274,4 +274,9 @@ export class SecretsService {
     expirationDate.setDate(expirationDate.getDate() + lifetime);
     return expirationDate;
   }
+
+  // Méthode pour obtenir le nombre de secrets
+  async getSecretCount(): Promise<number> {
+    return await this.secretsRepository.count();
+  }
 }
