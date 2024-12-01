@@ -6,7 +6,7 @@ async function bootstrap() {
 
   // Configuration CORS
   app.enableCors({
-    origin: 'http://localhost:3001', // URL de votre frontend Next.js
+    origin: process.env.NEXTAUTH_URL, // URL de votre frontend Next.js
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true, // Si vous utilisez des cookies ou l'authentification
   });

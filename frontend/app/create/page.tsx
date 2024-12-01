@@ -35,7 +35,7 @@ export default function CreatePage() {
         }
 
         try {
-            const response = await fetch("http://localhost:3000/secrets/create", {
+            const response = await fetch(process.env.NEXT_PUBLIC_API_URL + "/secrets/create", {
                 method: "POST",
                 body: formData,
             });
