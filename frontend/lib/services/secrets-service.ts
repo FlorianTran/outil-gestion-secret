@@ -141,4 +141,23 @@ export const SecretsService = {
 
     return response.data;
   },
+
+  /**
+   * Supprime un secret par ID avec le mot de passe
+   */
+  async deleteSecret(id: string | null, password: string | null): Promise<void> {
+    if (!id || !password) {
+      throw new Error('ID and password are required');
+    }
+
+    await axios.post(
+      `${BASE_URL}/secrets/delete/${id}`,
+      { password },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      },
+    );
+  },
 };

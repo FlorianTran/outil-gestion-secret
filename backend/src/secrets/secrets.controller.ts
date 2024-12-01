@@ -136,4 +136,25 @@ export class SecretsController {
       order,
     );
   }
+
+  @Post('delete/:id')
+  async deleteSecret(
+    @Param('id') id: string,
+    @Body() body: { password: string },
+  ): Promise<{ message: string }> {
+    if (!body.password) {
+      throw new BadRequestException('Password is required');
+    }
+
+    const deletedSecret = await this.secretsService.deleteSecret(
+      id,
+      body.password,
+    );
+
+    if (!deletedSecret) {
+      return { message: 'Secret not found' };
+    }
+
+    return { message: 'Secret deleted successfully' };
+  }
 }

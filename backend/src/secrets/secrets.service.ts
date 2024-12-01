@@ -305,4 +305,18 @@ export class SecretsService {
 
     return { data, total };
   }
+
+  async deleteSecret(id: string, password: string): Promise<boolean> {
+    const secret = await this.findSecretById(id);
+
+    try {
+      this.decryptSecret(secret, password);
+    } catch {
+      return false;
+    }
+
+    await this.secretsRepository.remove(secret);
+
+    return true;
+  }
 }
