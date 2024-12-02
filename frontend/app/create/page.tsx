@@ -46,7 +46,11 @@ export default function CreatePage() {
             );
 
             // Redirige vers la page de confirmation
-            router.push(`/confirmation?id=${response.id}`);
+            if (response) {
+                router.push(`/confirmation?id=${response.id}`);
+            } else {
+                setError("Une erreur est survenue lors de la création du secret.");
+            }
         } catch (error: any) {
             console.error("Error creating secret:", error);
             setError(
