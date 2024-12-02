@@ -1,7 +1,7 @@
 "use client";
 
 import { useSearchParams } from 'next/navigation';
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 
 interface RetrieveFormProps {
   onSubmit: (id: string, password: string) => void;
@@ -73,6 +73,7 @@ export const RetrieveForm: React.FC<RetrieveFormProps> = ({ onSubmit, error }) =
 
       <button
         type="submit"
+        disabled={!secretId || !password}
         style={{
           padding: "0.5rem 1rem",
           backgroundColor: "#0070f3",
@@ -80,6 +81,7 @@ export const RetrieveForm: React.FC<RetrieveFormProps> = ({ onSubmit, error }) =
           border: "none",
           cursor: "pointer",
           marginTop: "1rem",
+          opacity: (!secretId || !password) ? 0.5 : 1,
         }}
       >
         Récupérer le secret

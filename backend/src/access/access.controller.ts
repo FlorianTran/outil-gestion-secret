@@ -1,10 +1,4 @@
-import {
-  Controller,
-  NotFoundException,
-  Param,
-  Post,
-  Req,
-} from '@nestjs/common';
+import { Controller, Param, Post, Req } from '@nestjs/common';
 import { Request } from 'express';
 import { AccessService } from './access.service';
 import { SecretsService } from 'src/secrets/secrets.service';
@@ -23,7 +17,9 @@ export class AccessController {
   async notifyAccess(@Param('id') id: string, @Req() req: Request) {
     const secret = await this.secretsService.findSecretById(id);
     if (!secret) {
-      throw new NotFoundException('Secret not found');
+      return {
+        message: 'Secret not found',
+      };
     }
 
     // Récupérer et nettoyer l'adresse IP client

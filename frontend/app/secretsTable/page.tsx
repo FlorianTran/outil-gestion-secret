@@ -25,29 +25,36 @@ export default function SecretsTable() {
   const fetchSecrets = async () => {
     setLoading(true);
     try {
-      const { data, total } = await SecretsService.getUserSecrets(email, page + 1, pageSize);
+      const response = await SecretsService.getUserSecrets(email, page + 1, pageSize);
 
-      setSecrets(
-        data.map((secret) => ({
-          id: secret.id,
-          content: secret.content,
-          createdAt: new Date(secret.createdAt).toLocaleDateString('fr-FR', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-          }),
-          maxRetrievals: secret.maxRetrievals,
-          retrievalCount: secret.retrievalCount,
-          expirationDate: secret.expirationDate ? new Date(secret.expirationDate).toLocaleDateString('fr-FR', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-          }) : '',
-        })),
-      );
-      setTotal(total);
+      // Vérification complète de la structure de la réponse
+      if (response && response.data && response.total !== undefined) {
+        const { data, total } = response;
+
+        setSecrets(
+          data.map((secret) => ({
+            id: secret.id,
+            content: secret.content,
+            createdAt: new Date(secret.createdAt).toLocaleDateString('fr-FR', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+            }),
+            maxRetrievals: secret.maxRetrievals,
+            retrievalCount: secret.retrievalCount,
+            expirationDate: secret.expirationDate ? new Date(secret.expirationDate).toLocaleDateString('fr-FR', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+            }) : '',
+          })),
+        );
+        setTotal(total);
+      } else {
+        console.error('Données manquantes dans la réponse de l\'API');
+      }
     } catch (error) {
       console.error('Erreur lors du chargement des secrets :', error);
     } finally {

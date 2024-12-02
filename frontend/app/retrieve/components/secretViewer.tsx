@@ -2,8 +2,7 @@
 
 import { IpService } from '@/lib/services/ip-service';
 import { SecretsService } from '@/lib/services/secrets-service';
-import React, { useEffect, useState } from "react";
-import { UAParser } from 'ua-parser-js';
+import React, { useEffect } from "react";
 
 interface SecretViewerProps {
   secret: string | null;
@@ -28,7 +27,7 @@ export const SecretViewer: React.FC<SecretViewerProps> = ({
   // Effect pour récupérer le User Agent et notifier l'accès
   useEffect(() => {
     const notifyAccess = async () => {
-      try { 
+      try {
         if (id) {
           await IpService.notifyAccess(id);
         } else {
@@ -40,8 +39,8 @@ export const SecretViewer: React.FC<SecretViewerProps> = ({
     };
 
     notifyAccess(); // Appel asynchrone encapsulé
-  }, []);
-
+  }, [id]);
+``
   // Fonction pour télécharger le fichier
   const handleDownload = () => {
     if (fileData && fileName) {
