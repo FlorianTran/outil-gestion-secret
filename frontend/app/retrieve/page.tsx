@@ -11,10 +11,14 @@ export default function RetrievePage() {
     const [fileData, setFileData] = useState<string | null>(null); // For base64 file
     const [error, setError] = useState<string | null>(null);
     const [isSecretView, setIsSecretView] = useState(false);
+    const [password, setPassword] = useState<string | null>(null);
+    const [id, setId] = useState<string | null>(null);
 
     const handleRetrieve = async (id: string, password: string) => {
         setError(null);
         try {
+            setPassword(password);
+            setId(id);
             const data = await SecretsService.retrieveSecret({ id, password });
             setSecret(data.content);
             if (data.file) {
@@ -47,6 +51,8 @@ export default function RetrievePage() {
                     fileData={fileData}
                     onBack={handleBack}
                     error={error}
+                    password={password}
+                    id={id}
                 />
             )}
         </div>

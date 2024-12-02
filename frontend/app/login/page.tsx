@@ -3,6 +3,7 @@
 import { signIn, useSession } from "next-auth/react";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from 'next/link';
 
 export default function LoginPage() {
   const { data: session } = useSession();
@@ -28,6 +29,9 @@ export default function LoginPage() {
       >
         Se connecter avec Google
       </button>
+      <Link href="/">
+        Retour à l'accueil
+      </Link>
     </div>
   );
 }

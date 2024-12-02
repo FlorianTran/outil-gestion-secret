@@ -29,6 +29,7 @@ export class SecretsService {
     password: string,
     lifetime?: number,
     maxRetrievals?: number,
+    createdBy?: string | null,
   ): Promise<Secret> {
     const textEncryption = this.encryptionService.encrypt(content, password);
 
@@ -50,6 +51,8 @@ export class SecretsService {
 
     const expirationDate = this.handleLifetime(lifetime);
 
+    const createdAt = new Date();
+
     const secret = this.secretsRepository.create({
       encryptedContent: textEncryption.encrypted,
       encryptionDetails: {
@@ -60,6 +63,8 @@ export class SecretsService {
       expirationDate,
       maxRetrievals,
       file: secretFileEntity, // Associe directement le fichier
+      createdBy: createdBy || null,
+      createdAt,
     });
 
     // Sauvegarde le secret principal et son fichier lié dans une seule transaction
@@ -149,7 +154,7 @@ export class SecretsService {
   /**
    * Récupère un secret par son ID ou lève une exception si introuvable
    */
-  private async findSecretById(id: string): Promise<Secret> {
+  public async findSecretById(id: string): Promise<Secret> {
     const secret = await this.secretsRepository.findOne({
       where: { id },
       relations: ['file'], // Charge la relation avec SecretFile
@@ -257,6 +262,7 @@ export class SecretsService {
       expirationDate: secret.expirationDate,
       maxRetrievals: secret.maxRetrievals,
       retrievalCount: secret.retrievalCount,
+      createdAt: secret.createdAt,
     };
   }
 
@@ -278,5 +284,39 @@ export class SecretsService {
   // Méthode pour obtenir le nombre de secrets
   async getSecretCount(): Promise<number> {
     return await this.secretsRepository.count();
+  }
+
+  /**
+   * Récupère les secrets d'un utilisateur avec pagination et tri
+   */
+  async getUserSecrets(
+    email: string,
+    page: number,
+    limit: number,
+    sortBy: string,
+    order: 'ASC' | 'DESC',
+  ): Promise<{ data: Secret[]; total: number }> {
+    const [data, total] = await this.secretsRepository.findAndCount({
+      where: { createdBy: email },
+      order: { [sortBy]: order },
+      take: limit,
+      skip: (page - 1) * limit,
+    });
+
+    return { data, total };
+  }
+
+  async deleteSecret(id: string, password: string): Promise<boolean> {
+    const secret = await this.findSecretById(id);
+
+    try {
+      this.decryptSecret(secret, password);
+    } catch {
+      return false;
+    }
+
+    await this.secretsRepository.remove(secret);
+
+    return true;
   }
 }

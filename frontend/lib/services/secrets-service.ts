@@ -28,15 +28,19 @@ interface RetrieveSecretResponse {
   expirationDate: string | null;
   maxRetrievals: number | null;
   retrievalCount: number;
+  createdAt: string;
 }
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
 export const SecretsService = {
   /**
-   * Crée un secret (avec ou sans fichier)
+   * Crée un secret (avec ou sans fichier, avec ou sans utilisateur connecté)
    */
-  async createSecret(data: CreateSecretRequest): Promise<CreateSecretResponse> {
+  async createSecret(
+    data: CreateSecretRequest,
+    session?: { email: string },
+  ): Promise<CreateSecretResponse> {
     const formData = new FormData();
     formData.append('content', data.content);
     formData.append('password', data.password);
@@ -51,6 +55,10 @@ export const SecretsService = {
 
     if (data.file) {
       formData.append('file', data.file);
+    }
+
+    if (session?.email) {
+      formData.append('createdBy', session.email); // Ajout de l'utilisateur connecté
     }
 
     const response = await axios.post<CreateSecretResponse>(
@@ -109,5 +117,47 @@ export const SecretsService = {
     const response = await axios.get(`${BASE_URL}/secrets/count`);
 
     return response.data.count;
+  },
+
+  /**
+   * Récupère les secrets d'un utilisateur par email
+   */
+  async getUserSecrets(
+    email: string,
+    page: number = 1,
+    limit: number = 10,
+    sortBy: string = 'createdAt',
+    order: 'ASC' | 'DESC' = 'ASC',
+  ): Promise<{ data: RetrieveSecretResponse[]; total: number }> {
+    const response = await axios.get<{
+      data: RetrieveSecretResponse[];
+      total: number;
+    }>(`${BASE_URL}/secrets/user-secrets`, {
+      params: { email, page, limit, sortBy, order },
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    return response.data;
+  },
+
+  /**
+   * Supprime un secret par ID avec le mot de passe
+   */
+  async deleteSecret(id: string | null, password: string | null): Promise<void> {
+    if (!id || !password) {
+      throw new Error('ID and password are required');
+    }
+
+    await axios.post(
+      `${BASE_URL}/secrets/delete/${id}`,
+      { password },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      },
+    );
   },
 };

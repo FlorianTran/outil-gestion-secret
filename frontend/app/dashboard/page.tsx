@@ -1,18 +1,23 @@
 'use client';
 
-import { useSession, signOut } from 'next-auth/react';
+import { useSession } from 'next-auth/react';
+import SecretsTable from '../secretsTable/page';
 
 export default function DashboardPage() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
+
+  if (status === 'loading') {
+    return <p>Chargement...</p>;
+  }
 
   if (!session) {
-    return <p>Chargement...</p>;
+    return <p>Vous devez être connecté pour accéder au tableau de bord.</p>;
   }
 
   return (
     <div>
       <h1>Bienvenue, {session.user?.name}</h1>
-      <button onClick={() => signOut()}>Se déconnecter</button>
+      <SecretsTable />
     </div>
   );
 }

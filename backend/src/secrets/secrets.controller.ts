@@ -6,6 +6,7 @@ import {
   NotFoundException,
   Param,
   Post,
+  Query,
   Res,
   UploadedFile,
   UseInterceptors,
@@ -31,6 +32,7 @@ export class SecretsController {
       password: string;
       lifetime?: number;
       maxRetrievals?: number;
+      createdBy?: string;
     },
   ) {
     if (!body.content || !body.password) {
@@ -45,6 +47,7 @@ export class SecretsController {
       body.password,
       body.lifetime,
       body.maxRetrievals,
+      body.createdBy,
     );
 
     return { message: 'Secret created successfully', id: secret.id };
@@ -111,5 +114,47 @@ export class SecretsController {
     const count = await this.secretsService.getSecretCount();
 
     return { count };
+  }
+
+  @Get('user-secrets')
+  async getUserSecrets(
+    @Query('email') email: string,
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+    @Query('sortBy') sortBy: string = 'createdAt',
+    @Query('order') order: 'ASC' | 'DESC' = 'ASC',
+  ) {
+    if (!email) {
+      throw new BadRequestException('Email is required');
+    }
+
+    return this.secretsService.getUserSecrets(
+      email,
+      page,
+      limit,
+      sortBy,
+      order,
+    );
+  }
+
+  @Post('delete/:id')
+  async deleteSecret(
+    @Param('id') id: string,
+    @Body() body: { password: string },
+  ): Promise<{ message: string }> {
+    if (!body.password) {
+      throw new BadRequestException('Password is required');
+    }
+
+    const deletedSecret = await this.secretsService.deleteSecret(
+      id,
+      body.password,
+    );
+
+    if (!deletedSecret) {
+      return { message: 'Secret not found' };
+    }
+
+    return { message: 'Secret deleted successfully' };
   }
 }

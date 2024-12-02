@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import { useSearchParams } from 'next/navigation';
+import React, { useState, useEffect } from "react";
 
 interface RetrieveFormProps {
   onSubmit: (id: string, password: string) => void;
@@ -8,7 +9,10 @@ interface RetrieveFormProps {
 }
 
 export const RetrieveForm: React.FC<RetrieveFormProps> = ({ onSubmit, error }) => {
-  const [secretId, setSecretId] = useState("");
+  const searchParams = useSearchParams();
+  const idFromUrl = searchParams.get("id") || "";
+
+  const [secretId, setSecretId] = useState(idFromUrl);
   const [password, setPassword] = useState("");
 
   const handlePaste = async () => {
@@ -16,7 +20,7 @@ export const RetrieveForm: React.FC<RetrieveFormProps> = ({ onSubmit, error }) =
       const text = await navigator.clipboard.readText();
       setSecretId(text);
     } catch (err) {
-      console.error("Impossible de coller depuis le presse-papiers :", err);
+      console.log("Impossible de coller depuis le presse-papiers :", err);
     }
   };
 

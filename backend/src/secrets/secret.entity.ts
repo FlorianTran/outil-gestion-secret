@@ -31,4 +31,10 @@ export class Secret {
 
   @Column({ default: 0 })
   retrievalCount: number;
+
+  @Column({ nullable: true })
+  createdBy?: string;
+
+  @Column()
+  createdAt: Date;
 }
