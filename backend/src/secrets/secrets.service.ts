@@ -80,7 +80,7 @@ export class SecretsService {
    */
   encryptSecretFile(file: Express.Multer.File, password: string): any {
     if (!file || !file.buffer) {
-      throw new BadRequestException('No file buffer provided.');
+      throw new BadRequestException('Le fichier est manquant ou invalide.');
     }
 
     const encryptedFile = this.encryptionService.encrypt(
@@ -93,7 +93,7 @@ export class SecretsService {
       iv: encryptedFile.iv,
       salt: encryptedFile.salt,
       authTag: encryptedFile.authTag,
-      originalFileName: file.originalname || 'unknown_file',
+      originalFileName: file.originalname || 'fichier_inconnu',
     };
   }
 
@@ -107,39 +107,50 @@ export class SecretsService {
     password: string,
     isDownload: boolean,
   ): Promise<any> {
-    this.validateInputs(id, password);
+    try {
+      this.validateInputs(id, password);
 
-    const secret = await this.findSecretById(id);
+      const secret = await this.findSecretById(id);
+      if (!secret) {
+        throw new NotFoundException('Secret non trouvé');
+      }
 
-    const decryptedContent = this.decryptSecret(secret, password);
+      const decryptedContent = this.decryptSecret(secret, password);
 
-    if (!isDownload) {
-      await this.validateAndHandleRetrieval(secret);
-    }
+      if (!isDownload) {
+        await this.validateAndHandleRetrieval(secret);
+      }
 
-    let secretFileData: Buffer | undefined;
+      let secretFileData: Buffer | undefined;
 
-    // Si le secret contient un fichier
-    if (secret.file) {
-      const decryptedFileContent = this.decryptSecretFile(
-        secret.file,
-        password,
+      // Si le secret contient un fichier
+      if (secret.file) {
+        const decryptedFileContent = this.decryptSecretFile(
+          secret.file,
+          password,
+        );
+
+        // Transforme le contenu déchiffré en Buffer
+        secretFileData = Buffer.from(decryptedFileContent, 'base64');
+      }
+
+      // Vérifie si le secret a expiré
+      const isExpired = await this.handleExpiration(secret);
+      if (isExpired) {
+        throw new NotFoundException(
+          "Le secret a expiré et n'est plus disponible",
+        );
+      }
+
+      // Retourne la réponse formatée avec le texte déchiffré et le fichier, s'il existe
+      return this.formatSecretResponse(
+        secret,
+        decryptedContent,
+        secretFileData,
       );
-
-      // Transforme le contenu déchiffré en Buffer
-      secretFileData = Buffer.from(decryptedFileContent, 'base64');
+    } catch (error) {
+      throw new BadRequestException(error.message);
     }
-
-    // Vérifie si le secret a expiré
-    const isExpired = await this.handleExpiration(secret);
-    if (isExpired) {
-      throw new NotFoundException(
-        'Secret has expired and is no longer available',
-      );
-    }
-
-    // Retourne la réponse formatée avec le texte déchiffré et le fichier, s'il existe
-    return this.formatSecretResponse(secret, decryptedContent, secretFileData);
   }
 
   /**
@@ -147,7 +158,7 @@ export class SecretsService {
    */
   private validateInputs(id: string, password: string): void {
     if (!id || !password) {
-      throw new BadRequestException('ID and password are required');
+      throw new BadRequestException("L'ID et le mot de passe sont requis");
     }
   }
 
@@ -161,7 +172,7 @@ export class SecretsService {
     });
 
     if (!secret) {
-      throw new NotFoundException('Secret not found');
+      return null;
     }
 
     return secret;
@@ -176,7 +187,7 @@ export class SecretsService {
       if (secret.maxRetrievals <= 0) {
         await this.secretsRepository.remove(secret);
         throw new ForbiddenException(
-          'This secret has reached its maximum number of retrievals',
+          'Ce secret a atteint son nombre maximal de récupérations',
         );
       }
 
@@ -193,7 +204,7 @@ export class SecretsService {
   public validateMaxRetrievals(maxRetrievals?: number): void {
     if (maxRetrievals !== undefined && maxRetrievals <= 0) {
       throw new BadRequestException(
-        `Invalid maxRetrievals value: ${maxRetrievals}. It must be a positive number.`,
+        `La valeur de maxRetrievals est invalide : ${maxRetrievals}. Elle doit être un nombre positif.`,
       );
     }
   }
@@ -210,8 +221,8 @@ export class SecretsService {
         secret.encryptionDetails.salt,
         secret.encryptionDetails.authTag,
       );
-    } catch (error) {
-      throw new BadRequestException(`Invalid password provided: ${error}`);
+    } catch {
+      throw new BadRequestException('Mot de passe invalide');
     }
   }
 
@@ -226,7 +237,7 @@ export class SecretsService {
       );
     } catch (error) {
       throw new BadRequestException(
-        `Invalid password provided for file decryption: ${error}`,
+        `Mot de passe invalide pour le déchiffrement du fichier : ${error}`,
       );
     }
   }
@@ -274,7 +285,9 @@ export class SecretsService {
       return null;
     }
     if (lifetime <= 0) {
-      throw new BadRequestException('Lifetime must be a positive number');
+      throw new BadRequestException(
+        'La durée de vie doit être un nombre positif',
+      );
     }
     const expirationDate = new Date();
     expirationDate.setDate(expirationDate.getDate() + lifetime);
@@ -296,18 +309,25 @@ export class SecretsService {
     sortBy: string,
     order: 'ASC' | 'DESC',
   ): Promise<{ data: Secret[]; total: number }> {
-    const [data, total] = await this.secretsRepository.findAndCount({
-      where: { createdBy: email },
-      order: { [sortBy]: order },
-      take: limit,
-      skip: (page - 1) * limit,
-    });
+    const queryBuilder = this.secretsRepository.createQueryBuilder('secret');
+    queryBuilder.where('secret.createdBy = :email', { email });
+
+    if (sortBy) {
+      queryBuilder.orderBy(`secret.${sortBy}`, order);
+    }
+
+    queryBuilder.skip((page - 1) * limit).take(limit);
+
+    const [data, total] = await queryBuilder.getManyAndCount();
 
     return { data, total };
   }
 
   async deleteSecret(id: string, password: string): Promise<boolean> {
     const secret = await this.findSecretById(id);
+    if (!secret) {
+      throw new NotFoundException('Secret non trouvé');
+    }
 
     try {
       this.decryptSecret(secret, password);

@@ -40,7 +40,7 @@ export const SecretsService = {
   async createSecret(
     data: CreateSecretRequest,
     session?: { email: string },
-  ): Promise<CreateSecretResponse> {
+  ): Promise<CreateSecretResponse | null> {
     const formData = new FormData();
     formData.append('content', data.content);
     formData.append('password', data.password);
@@ -61,17 +61,21 @@ export const SecretsService = {
       formData.append('createdBy', session.email); // Ajout de l'utilisateur connecté
     }
 
-    const response = await axios.post<CreateSecretResponse>(
-      `${BASE_URL}/secrets/create`,
-      formData,
-      {
-        headers: {
-          'Content-Type': 'multipart/form-data',
+    try {
+      const response = await axios.post<CreateSecretResponse>(
+        `${BASE_URL}/secrets/create`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
         },
-      },
-    );
-
-    return response.data;
+      );
+      return response.data;
+    } catch (error) {
+      handleError(error);
+      return null;
+    }
   },
 
   /**
@@ -79,44 +83,56 @@ export const SecretsService = {
    */
   async retrieveSecret(
     data: RetrieveSecretRequest,
-  ): Promise<RetrieveSecretResponse> {
-    const response = await axios.post<RetrieveSecretResponse>(
-      `${BASE_URL}/secrets/${data.id}`,
-      {
-        password: data.password,
-      },
-      {
-        headers: {
-          'Content-Type': 'application/json',
+  ): Promise<RetrieveSecretResponse | null> {
+    try {
+      const response = await axios.post<RetrieveSecretResponse>(
+        `${BASE_URL}/secrets/${data.id}`,
+        {
+          password: data.password,
         },
-      },
-    );
-
-    return response.data;
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        },
+      );
+      return response.data;
+    } catch (error) {
+      handleError(error);
+      return null;
+    }
   },
 
   /**
    * Télécharge un fichier associé à un secret
    */
-  async downloadSecretFile(id: string, password: string): Promise<Blob> {
-    const response = await axios.post(
-      `${BASE_URL}/secrets/${id}/download`,
-      { password },
-      {
-        headers: {
-          'Content-Type': 'application/json',
+  async downloadSecretFile(id: string, password: string): Promise<Blob | null> {
+    try {
+      const response = await axios.post(
+        `${BASE_URL}/secrets/${id}/download`,
+        { password },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          responseType: 'blob',
         },
-        responseType: 'blob',
-      },
-    );
-
-    return response.data;
+      );
+      return response.data;
+    } catch (error) {
+      handleError(error);
+      return null;
+    }
   },
 
-  async getSecretCount(): Promise<number> {
-    const response = await axios.get(`${BASE_URL}/secrets/count`);
-
-    return response.data.count;
+  async getSecretCount(): Promise<number | null> {
+    try {
+      const response = await axios.get(`${BASE_URL}/secrets/count`);
+      return response.data.count;
+    } catch (error) {
+      handleError(error);
+      return null;
+    }
   },
 
   /**
@@ -128,36 +144,87 @@ export const SecretsService = {
     limit: number = 10,
     sortBy: string = 'createdAt',
     order: 'ASC' | 'DESC' = 'ASC',
-  ): Promise<{ data: RetrieveSecretResponse[]; total: number }> {
-    const response = await axios.get<{
-      data: RetrieveSecretResponse[];
-      total: number;
-    }>(`${BASE_URL}/secrets/user-secrets`, {
-      params: { email, page, limit, sortBy, order },
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-
-    return response.data;
+  ): Promise<{ data: RetrieveSecretResponse[]; total: number } | null> {
+    try {
+      const response = await axios.get<{
+        data: RetrieveSecretResponse[];
+        total: number;
+      }>(`${BASE_URL}/secrets/user-secrets`, {
+        params: { email, page, limit, sortBy, order },
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      return response.data;
+    } catch (error) {
+      handleError(error);
+      return null;
+    }
   },
 
   /**
    * Supprime un secret par ID avec le mot de passe
    */
-  async deleteSecret(id: string | null, password: string | null): Promise<void> {
+  async deleteSecret(
+    id: string | null,
+    password: string | null,
+  ): Promise<void> {
     if (!id || !password) {
-      throw new Error('ID and password are required');
+      console.warn('ID and password are required');
+      return;
     }
 
-    await axios.post(
-      `${BASE_URL}/secrets/delete/${id}`,
-      { password },
-      {
-        headers: {
-          'Content-Type': 'application/json',
+    try {
+      await axios.post(
+        `${BASE_URL}/secrets/delete/${id}`,
+        { password },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
         },
-      },
-    );
+      );
+    } catch (error) {
+      handleError(error);
+    }
   },
 };
+
+/**
+ * Fonction pour gérer les erreurs de manière centralisée
+ */
+function handleError(error: any) {
+  if (axios.isAxiosError(error)) {
+    // Erreur réseau ou réponse de l'API
+    if (error.response) {
+      const status = error.response.status;
+      const message = error.response.data?.message || 'Erreur inconnue';
+
+      switch (status) {
+        case 400:
+          console.warn('Mauvaise requête (400): ', message);
+          alert('Mauvaise requête (400): ' + message);
+          break;
+        case 401:
+          console.warn('Non autorisé (401): ', message);
+          alert('Non autorisé (401): ' + message);
+          break;
+        case 404:
+          console.warn('Ressource non trouvée (404): ', message);
+          alert('Ressource non trouvée (404): ' + message);
+          break;
+        default:
+          console.error(`Erreur ${status}: ${message}`);
+          break;
+      }
+    } else if (error.request) {
+      // Problème avec la demande (réseau, timeout, etc.)
+      console.error('Problème avec la requête:', error.request);
+    } else {
+      // Autres erreurs
+      console.error('Erreur inconnue:', error.message);
+    }
+  } else {
+    console.error('Erreur non liée à Axios:', error);
+  }
+}

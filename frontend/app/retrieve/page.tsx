@@ -2,7 +2,7 @@
 
 import { SecretsService } from '@/lib/services/secrets-service';
 import React, { useState } from "react";
-import { RetrieveForm } from './components/retreiveForm';
+import { RetrieveForm } from './components/retrieveForm';
 import { SecretViewer } from './components/secretViewer';
 
 export default function RetrievePage() {
@@ -20,15 +20,20 @@ export default function RetrievePage() {
             setPassword(password);
             setId(id);
             const data = await SecretsService.retrieveSecret({ id, password });
+
+            if (!data) {
+                return;
+            }
+
             setSecret(data.content);
             if (data.file) {
                 setFileName(data.file.originalName);
                 setFileData(data.file.data); // Base64 encoded
             }
             setIsSecretView(true);
-        } catch (err) {
+        } catch (err: any) {
             console.error(err);
-            setError("Erreur lors de la récupération du secret.");
+            setError("Erreur lors de la récupération du secret :" + err.message);
         }
     };
 
