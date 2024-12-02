@@ -23,24 +23,23 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const pathname = usePathname();
-  const excludedPaths = ["/auth/login", "/auth/register", "/"]; // Routes sans layout
+  const excludedPaths = ["/auth/login", "/auth/register", "/", "/login"]; // Routes sans layout
 
-  const shouldExcludeLayout = excludedPaths.includes(pathname);
+  const shouldExcludeNavbar = excludedPaths.includes(pathname);
+
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased h-screen flex flex-col`}
-      >
-        {!shouldExcludeLayout && <Navbar />}
-        {shouldExcludeLayout ?
-          <main>
-            <SessionProvider>{children}</SessionProvider>
-          </main> :
-
-          <main className="flex-grow pt-16">
-            {<SessionProvider>{children}</SessionProvider>}
-          </main>}
-      </body>
+      <SessionProvider>
+        <body
+          className={`${geistSans.variable} ${geistMono.variable} antialiased h-screen flex flex-col`}
+        >
+          {/* Affiche la Navbar uniquement si la route n'est pas exclue */}
+          {!shouldExcludeNavbar && <Navbar />}
+          <main className={`flex-grow ${!shouldExcludeNavbar ? 'pt-16' : ''}`}>
+            {children}
+          </main>
+        </body>
+      </SessionProvider>
     </html>
   );
 }

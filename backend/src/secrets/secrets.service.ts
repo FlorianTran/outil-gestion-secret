@@ -154,7 +154,7 @@ export class SecretsService {
   /**
    * Récupère un secret par son ID ou lève une exception si introuvable
    */
-  private async findSecretById(id: string): Promise<Secret> {
+  public async findSecretById(id: string): Promise<Secret> {
     const secret = await this.secretsRepository.findOne({
       where: { id },
       relations: ['file'], // Charge la relation avec SecretFile

@@ -19,7 +19,6 @@ export const authOptions: AuthOptions = {
     }),
   ],
   secret: process.env.NEXTAUTH_SECRET,
-  debug: true, // Activer le debug pour faciliter le développement
   pages: {
     signIn: '/login',
   },

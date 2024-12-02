@@ -20,7 +20,7 @@ export const RetrieveForm: React.FC<RetrieveFormProps> = ({ onSubmit, error }) =
       const text = await navigator.clipboard.readText();
       setSecretId(text);
     } catch (err) {
-      console.error("Impossible de coller depuis le presse-papiers :", err);
+      console.log("Impossible de coller depuis le presse-papiers :", err);
     }
   };
 

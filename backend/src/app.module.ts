@@ -4,6 +4,8 @@ import * as dotenv from 'dotenv';
 import { AppController } from './app.controller';
 import { EncryptionService } from './secrets/encryption.service';
 import { SecretsModule } from './secrets/secrets.module';
+import { AccessController } from './access/access.controller';
+import { AccessModule } from './access/access.module';
 
 dotenv.config();
 
@@ -20,8 +22,9 @@ dotenv.config();
       synchronize: true, // changer en prod par false et remplacer par des migrations
     }),
     SecretsModule,
+    AccessModule,
   ],
-  controllers: [AppController],
+  controllers: [AppController, AccessController],
   providers: [EncryptionService],
 })
 export class AppModule {}

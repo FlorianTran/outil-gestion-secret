@@ -7,7 +7,7 @@ import { SecretsController } from './secrets.controller';
 import { SecretsService } from './secrets.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Secret, SecretFile])], // Supprime EncryptionDetails
+  imports: [TypeOrmModule.forFeature([Secret, SecretFile])],
   controllers: [SecretsController],
   providers: [SecretsService, EncryptionService],
   exports: [SecretsService],
