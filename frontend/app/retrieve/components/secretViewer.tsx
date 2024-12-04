@@ -75,7 +75,7 @@ export const SecretViewer: React.FC<SecretViewerProps> = ({
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-[var(--background)]">
+    <div className="flex justify-center items-center min-h-screen">
       <div className="w-full max-w-3xl bg-[var(--background)] border border-[var(--border)] rounded-md p-6">
         <h1 className="text-2xl font-semibold text-[var(--foreground)] text-center mb-6">Votre secret</h1>
         {error ? (

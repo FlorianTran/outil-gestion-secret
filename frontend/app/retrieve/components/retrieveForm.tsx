@@ -32,7 +32,7 @@ export const RetrieveForm: React.FC<RetrieveFormProps> = ({ onSubmit, error }) =
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-[var(--background)]">
+    <div className="flex justify-center items-center min-h-screen">
       <form onSubmit={handleSubmit} className="w-full max-w-xl flex flex-col gap-6 p-6 border border-[var(--border)] rounded-md bg-[var(--inside-background)]">
         <h1 className="text-2xl font-semibold text-[var(--foreground)] text-center">Récupérer un secret</h1>
         {error && <p className="text-[var(--error)] text-center">{error}</p>}
