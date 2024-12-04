@@ -62,12 +62,11 @@ export class SecretsService {
       },
       expirationDate,
       maxRetrievals,
-      file: secretFileEntity, // Associe directement le fichier
+      file: secretFileEntity,
       createdBy: createdBy || null,
       createdAt,
     });
 
-    // Sauvegarde le secret principal et son fichier lié dans une seule transaction
     return await this.secretsRepository.save(secret);
   }
 
@@ -123,7 +122,6 @@ export class SecretsService {
 
       let secretFileData: Buffer | undefined;
 
-      // Si le secret contient un fichier
       if (secret.file) {
         const decryptedFileContent = this.decryptSecretFile(
           secret.file,
@@ -134,7 +132,6 @@ export class SecretsService {
         secretFileData = Buffer.from(decryptedFileContent, 'base64');
       }
 
-      // Vérifie si le secret a expiré
       const isExpired = await this.handleExpiration(secret);
       if (isExpired) {
         throw new NotFoundException(
@@ -142,7 +139,6 @@ export class SecretsService {
         );
       }
 
-      // Retourne la réponse formatée avec le texte déchiffré et le fichier, s'il existe
       return this.formatSecretResponse(
         secret,
         decryptedContent,
@@ -294,7 +290,9 @@ export class SecretsService {
     return expirationDate;
   }
 
-  // Méthode pour obtenir le nombre de secrets
+  /**
+   * Récupère le nombre total de secrets stockés
+   */
   async getSecretCount(): Promise<number> {
     return await this.secretsRepository.count();
   }
@@ -316,13 +314,18 @@ export class SecretsService {
       queryBuilder.orderBy(`secret.${sortBy}`, order);
     }
 
+    // Calcule le nombre total de secrets avant la pagination
     queryBuilder.skip((page - 1) * limit).take(limit);
 
+    // Récupère les secrets et le nombre total
     const [data, total] = await queryBuilder.getManyAndCount();
 
     return { data, total };
   }
 
+  /**
+   * Supprime un secret
+   */
   async deleteSecret(id: string, password: string): Promise<boolean> {
     const secret = await this.findSecretById(id);
     if (!secret) {

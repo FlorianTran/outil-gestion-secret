@@ -87,13 +87,12 @@ export class SecretsController {
         false,
       );
 
-      // Retourner un objet avec 'content' et 'file' (si présent)
       return {
         content: secret.content,
         file: secret.file
           ? {
               originalName: secret.file.originalName,
-              data: secret.file.data, // Base64 si nécessaire
+              data: secret.file.data,
             }
           : null,
         message: 'Secret récupéré avec succès',
@@ -191,7 +190,6 @@ export class SecretsController {
         order,
       );
 
-      // Renvoie un objet contenant 'data' et 'total'
       return { data: secrets.data, total: secrets.total };
     } catch (error) {
       throw new BadRequestException(

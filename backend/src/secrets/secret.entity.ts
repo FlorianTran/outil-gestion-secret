@@ -14,9 +14,9 @@ export class Secret {
   id: string;
 
   @Column({ type: 'text' })
-  encryptedContent: string; // Texte chiffré
+  encryptedContent: string;
 
-  @Column(() => EncryptionDetails) // Détails de chiffrement pour le texte
+  @Column(() => EncryptionDetails)
   encryptionDetails: EncryptionDetails;
 
   @OneToOne(() => SecretFile, { cascade: true, eager: true, nullable: true })
