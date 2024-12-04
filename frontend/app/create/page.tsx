@@ -31,6 +31,8 @@ export default function CreatePage() {
         setIsFormValid(isValid);
     }, [content, password, lifetime, maxRetrievals]);
 
+    //! Warning avec le composnat FileUploader: Received `false` for a non-boolean attribute `error`.
+    //! Problème récurrent mais non bloquant, le composant fonctionne correctement.
     const handleChange = (file: File) => {
         setFile(file);
     };
