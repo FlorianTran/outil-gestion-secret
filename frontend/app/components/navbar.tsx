@@ -2,68 +2,54 @@
 
 import Link from "next/link";
 import "../globals.css";
-import { SecretsService } from '@/lib/services/secrets-service';
-import { useState, useEffect } from "react";
-import { useSession, signOut } from "next-auth/react";
+import { useSession } from "next-auth/react";
+import { FaGoogle } from 'react-icons/fa'; // Importer l'icône Google
 
 export default function Navbar() {
-  const [secretsCount, setSecretsCount] = useState<number | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const { data: session, status } = useSession(); // Récupérer l'état de session utilisateur
-
-  useEffect(() => {
-    const fetchSecretCount = async () => {
-      try {
-        if (session) {
-          const count = await SecretsService.getSecretCount();
-          setSecretsCount(count);
-        }
-      } catch (err) {
-        setError("Erreur lors de la récupération du nombre de secrets.");
-        console.error(err);
-      }
-    };
-
-    fetchSecretCount();
-  }, [session]);
+  const { data: session } = useSession(); // Récupérer l'état de session utilisateur
 
   return (
-    <nav className="flex justify-between items-center px-6 py-4 text-white fixed top-0 w-full shadow-md z-50 h-16">
+    <nav className="flex justify-between items-center px-6 py-4 text-[var(--font)] fixed top-0 w-full z-50 h-16">
       <div>
-        <Link href="/" className="text-white no-underline">
+        <Link href="/" className="text-[var(--font)] no-underline hover:text-[var(--accent)]  transition-colors duration-500">
           <h1 className="text-xl font-bold">Secret Manager</h1>
         </Link>
       </div>
-      <ul className="flex gap-6 list-none">
+      <ul className="flex gap-6 list-none items-center">
         <li>
-          {error ? (
-            <p className="text-sm font-light text-red-500">{error}</p>
-          ) : (
-            <p className="text-sm font-light">
-              Nombre de Secret: {secretsCount ?? "Chargement..."}
-            </p>
-          )}
+          <Link href="/create" className="text-[var(--font)] no-underline hover:text-[var(--accent)] transition-colors duration-500">
+            Nouveau Secret
+          </Link>
+        </li>
+        <li>
+          <Link href="/retrieve" className="text-[var(--font)] no-underline hover:text-[var(--accent)] transition-colors duration-500">
+            Récupération
+          </Link>
         </li>
         {session ? (
           <>
             <li>
-              <Link href="/dashboard" className="text-white no-underline">
+              <Link href="/dashboard" className="text-[var(--font)] no-underline hover:text-[var(--accent)] transition-colors duration-500">
                 Dashboard
               </Link>
             </li>
-            <li>
-              <button
-                onClick={() => signOut()} // Déconnexion avec `next-auth`
-                className="text-white bg-red-500 px-4 py-2 rounded hover:bg-red-600 transition"
-              >
-                Logout
-              </button>
+            <li className="flex items-center gap-2">
+              {session.user?.image ? (
+                <img
+                  src={session.user?.image}
+                  className="w-8 h-8 rounded-full object-cover"
+                  alt=""
+                />
+              ) : (
+                <FaGoogle className="w-8 h-8 text-[var(--font)]" /> // Icône Google
+              )}
+              <span className="text-sm">{session.user?.name}</span>
             </li>
           </>
         ) : (
           <li>
-            <Link href="/login" className="text-white no-underline">
-              Login
+            <Link href="/login" className="text-[var(--font)] no-underline hover:text-[var(--accent)] transition-colors duration-500">
+              Connexion
             </Link>
           </li>
         )}

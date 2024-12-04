@@ -12,33 +12,32 @@ export default function Home() {
         Créer par <span className="font-bold">Florian Tran</span>
       </div>
       <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <div className="text-neutral-300">
-          <p className="text-5xl font-medium">Welcome to </p>
-          <h1 className="text-9xl font-bold text-white">Secret Manager</h1>
+        <div className="text-[var(--font)]">
+          <p className="text-5xl text-[var(--secondary-font)]">Welcome to </p>
+          <h1 className="text-9xl font-bold text-[var(--font)]">Secret Manager</h1>
         </div>
-        <p className="text-xl font-light">
+        <p className="text-xl font-light text-[var(--secondary-font)]">
           Une application simple pour gérer vos secrets de manière totalement sécurisée.
         </p>
         <div className="flex gap-4 items-center flex-col sm:flex-row">
           <Link
             href="/create"
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
+            className="rounded-full border border-solid border-transparent transition-colors duration-500 flex items-center justify-center bg-foreground gap-2 hover:bg-[var(--accent)] text-[var(--background)] hover:text-white text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
           >
-            Get Started
+            Créer un secret
           </Link>
 
-          {/* Si l'utilisateur est déjà connecté, on n'affiche pas le lien "Sign In" */}
           {!session ? (
             <Link
               href="/login"
-              className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
+              className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors duration-500 flex items-center justify-center hover:text-black hover:bg-[#f2f2f2] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
             >
-              Sign In
+              Connexion
             </Link>
           ) : (
             <Link
               href="/dashboard"
-              className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
+              className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors duration-500 flex items-center justify-center hover:text-black hover:bg-[#f2f2f2] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
             >
               Dashboard
             </Link>

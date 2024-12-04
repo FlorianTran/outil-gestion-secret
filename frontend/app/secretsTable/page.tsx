@@ -6,13 +6,14 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import "../globals.css";
+import { Button } from '@mui/material';
 
 export default function SecretsTable() {
   const { data: session } = useSession();
   const email = session?.user?.email || '';
   const [secrets, setSecrets] = useState<GridRowsProp>([]);
   const [total, setTotal] = useState(0);
-  const [page, setPage] = useState(0);
+  const [page, setPage] = useState(0); // Les pages commencent à 0 pour le DataGrid
   const [pageSize, setPageSize] = useState(10);
   const [loading, setLoading] = useState(false);
 
@@ -25,9 +26,9 @@ export default function SecretsTable() {
   const fetchSecrets = async () => {
     setLoading(true);
     try {
-      const response = await SecretsService.getUserSecrets(email, page + 1, pageSize);
+      const response = await SecretsService.getUserSecrets(email, page + 1, pageSize); // Le backend commence à 1
 
-      // Vérification complète de la structure de la réponse
+      // Vérifie que la réponse contient les données attendues
       if (response && response.data && response.total !== undefined) {
         const { data, total } = response;
 
@@ -42,13 +43,15 @@ export default function SecretsTable() {
             }),
             maxRetrievals: secret.maxRetrievals,
             retrievalCount: secret.retrievalCount,
-            expirationDate: secret.expirationDate ? new Date(secret.expirationDate).toLocaleDateString('fr-FR', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
-              hour: '2-digit',
-              minute: '2-digit',
-            }) : '',
+            expirationDate: secret.expirationDate
+              ? new Date(secret.expirationDate).toLocaleDateString('fr-FR', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+              })
+              : '',
           })),
         );
         setTotal(total);
@@ -79,32 +82,30 @@ export default function SecretsTable() {
       headerName: 'Actions',
       flex: 1,
       renderCell: (params) => (
-        <button
-          onClick={() => handleRetrieve(params.row.id)}
-          style={{
-            padding: '0.5rem 1rem',
-            backgroundColor: '#0070f3',
-            color: 'white',
-            border: 'none',
-            cursor: 'pointer',
-            borderRadius: '5px',
-          }}
-        >
-          Récupérer
-        </button>
+        <div className="flex items-center justify-center">
+          <Button onClick={() => handleRetrieve(params.row.id)}>
+            Récupérer
+          </Button>
+        </div>
       ),
     },
   ];
 
   return (
-    <div style={{ height: 600, width: '80%' }}>
-      <h2 className="mb-4">Vos Secrets</h2>
+    <div className="h-[600px] w-[90%] mx-auto">
+      <h2 className="text-xl font-semibold mb-4 text-[var(--font)]">Vos Secrets</h2>
       <DataGrid
         rows={secrets}
+        rowHeight={60}
         columns={columns}
         rowCount={total}
-        paginationModel={{ page: page, pageSize: pageSize }}
-        paginationMode="server"
+        pageSizeOptions={[5, 10, 20]} // Options de tailles de pages
+        paginationModel={{ page, pageSize }}
+        onPaginationModelChange={(model) => {
+          setPage(model.page);
+          setPageSize(model.pageSize);
+        }}
+        paginationMode="server" // Pagination côté serveur
         loading={loading}
         disableColumnFilter
       />
