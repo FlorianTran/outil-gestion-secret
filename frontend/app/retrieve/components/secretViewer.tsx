@@ -3,11 +3,12 @@
 import { IpService } from '@/lib/services/ip-service';
 import { SecretsService } from '@/lib/services/secrets-service';
 import React, { useEffect } from "react";
+import { FaFile, FaDownload, FaTrashAlt } from "react-icons/fa";
 
 interface SecretViewerProps {
   secret: string | null;
   fileName: string | null;
-  fileData: string | null; // Base64 file data
+  fileData: string | null;
   onBack: () => void;
   error?: string | null;
   password: string | null;
@@ -40,12 +41,15 @@ export const SecretViewer: React.FC<SecretViewerProps> = ({
 
     notifyAccess(); // Appel asynchrone encapsulé
   }, [id]);
-``
+
   // Fonction pour télécharger le fichier
   const handleDownload = () => {
     if (fileData && fileName) {
+      // Création d'un lien de téléchargement
       const link = document.createElement("a");
+      // Encodage en base64
       link.href = `data:application/octet-stream;base64,${fileData}`;
+      // Téléchargement forcé
       link.download = fileName;
       link.click();
     } else {
@@ -71,54 +75,59 @@ export const SecretViewer: React.FC<SecretViewerProps> = ({
   };
 
   return (
-    <div style={{ padding: "2rem", maxWidth: "600px", margin: "0 auto" }}>
-      <h1>Votre secret</h1>
-      {error ? (
-        <p style={{ color: "red" }}>{error}</p>
-      ) : (
-        <>
-          {secret && (
-            <p>
-              <strong>Contenu du secret :</strong> {secret}
-            </p>
-          )}
-          {fileName && fileData && (
-            <div>
-              <p>
-                <strong>Un fichier est associé à ce secret :</strong> {fileName}
+    <div className="flex justify-center items-center min-h-screen bg-[var(--background)]">
+      <div className="w-full max-w-3xl bg-[var(--background)] border border-[var(--border)] rounded-md p-6">
+        <h1 className="text-2xl font-semibold text-[var(--foreground)] text-center mb-6">Votre secret</h1>
+        {error ? (
+          <p className="text-[var(--error)] text-center">{error}</p>
+        ) : (
+          <div className="flex flex-col gap-4">
+            {secret && (
+              <p className="text-[var(--font)]">
+                <strong>Contenu du secret :</strong> {secret}
               </p>
-              <button
-                onClick={handleDownload}
-                style={{
-                  padding: "0.5rem 1rem",
-                  backgroundColor: "#0070f3",
-                  color: "white",
-                  border: "none",
-                  cursor: "pointer",
-                  marginTop: "1rem",
-                  borderRadius: "5px",
-                }}
-              >
-                Télécharger le fichier
-              </button>
-            </div>
-          )}
-        </>
-      )}
+            )}
+            {fileName && fileData && (
+              <div>
+                <p className='mb-3'>Un fichier est associé à ce secret :</p>
+                <div className="flex items-center gap-4 bg-[var(--inside-background)] p-4 rounded-md">
+                  <FaFile className="text-[var(--font)]" size={24} />
+                  <div className="flex items-center justify-between w-full">
+                    <div>
+                      <p className="text-[var(--font)]">
+                        {fileName}
+                      </p>
+                    </div>
+                    <div className="flex gap-4">
+                      <button
+                        onClick={handleDownload}
+                        className="flex items-center justify-center text-[var(--font)] transition-transform transform hover:scale-110"
+                      >
+                        <FaDownload size={20} />
+                      </button>
+                      <button
+                        onClick={deleteSecret}
+                        className="flex items-center justify-center hover:text-[var(--error)] transition-transform transform hover:scale-110"
+                      >
+                        <FaTrashAlt size={20} />
+                      </button>
+                    </div>
+                  </div>
+                </div>
 
-      <div style={{ marginTop: "1rem", display: "flex", gap: "1rem" }}>
-        <button
-          onClick={deleteSecret}
-          className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
-        >
-          Supprimer le secret
-        </button>
-        <button
-          onClick={onBack}
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-        >
-          Retour
-        </button>
+              </div>
+            )}
+          </div>
+        )}
+
+        <div className="mt-6 flex gap-4 justify-center">
+          <button
+            onClick={onBack}
+            className="bg-[var(--button-bg)] hover:bg-[var(--button-hover)] text-[var(--button-font)] py-2 px-4 rounded"
+          >
+            Retour
+          </button>
+        </div>
       </div>
     </div>
   );

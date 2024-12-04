@@ -32,60 +32,57 @@ export const RetrieveForm: React.FC<RetrieveFormProps> = ({ onSubmit, error }) =
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-      <h1>Récupérer un secret</h1>
-      {error && <p style={{ color: "red" }}>{error}</p>}
+    <div className="flex justify-center items-center min-h-screen bg-[var(--background)]">
+      <form onSubmit={handleSubmit} className="w-full max-w-xl flex flex-col gap-6 p-6 border border-[var(--border)] rounded-md bg-[var(--inside-background)]">
+        <h1 className="text-2xl font-semibold text-[var(--foreground)] text-center">Récupérer un secret</h1>
+        {error && <p className="text-[var(--error)] text-center">{error}</p>}
 
-      <label htmlFor="secretId">ID du secret :</label>
-      <div style={{ display: "flex", gap: "0.5rem" }}>
-        <input
-          type="text"
-          id="secretId"
-          value={secretId}
-          onChange={(e) => setSecretId(e.target.value)}
-          placeholder="Entrez ou collez l'ID ici"
-          style={{ flex: 1, padding: "0.5rem" }}
-        />
-        <button
-          type="button"
-          onClick={handlePaste}
-          style={{
-            padding: "0.5rem 1rem",
-            backgroundColor: "#0070f3",
-            color: "white",
-            border: "none",
-            cursor: "pointer",
-          }}
-        >
-          Coller
-        </button>
-      </div>
+        <div>
+          <label htmlFor="secretId" className="block font-medium text-[var(--secondary-font)] mb-2">ID du secret :</label>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              id="secretId"
+              value={secretId}
+              onChange={(e) => setSecretId(e.target.value)}
+              placeholder="Entrez ou collez l'ID ici"
+              className="flex-1 p-2 border border-[var(--input-border)] bg-[var(--input-bg)] rounded text-[var(--font)] placeholder-[var(--placeholder)] focus:outline-none focus:border-[var(--input-focus)]"
+            />
+            <button
+              type="button"
+              onClick={handlePaste}
+              className="px-4 py-2 bg-[var(--secondary-button-bg)] text-[var(--secondary-button-font)] rounded hover:bg-[var(--secondary-button-hover)] focus:bg-[var(--secondary-button-hover)]"
+            >
+              Coller
+            </button>
+          </div>
+        </div>
 
-      <label htmlFor="password">Mot de passe :</label>
-      <input
-        type="password"
-        id="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        placeholder="Entrez votre mot de passe"
-        style={{ padding: "0.5rem" }}
-      />
+        <div>
+          <label htmlFor="password" className="block font-medium text-[var(--secondary-font)] mb-2">Mot de passe :</label>
+          <input
+            type="password"
+            id="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Entrez votre mot de passe"
+            className="w-full p-2 border border-[var(--input-border)] bg-[var(--input-bg)] rounded text-[var(--font)] placeholder-[var(--placeholder)] focus:outline-none focus:border-[var(--input-focus)]"
+          />
+        </div>
 
-      <button
-        type="submit"
-        disabled={!secretId || !password}
-        style={{
-          padding: "0.5rem 1rem",
-          backgroundColor: "#0070f3",
-          color: "white",
-          border: "none",
-          cursor: "pointer",
-          marginTop: "1rem",
-          opacity: (!secretId || !password) ? 0.5 : 1,
-        }}
-      >
-        Récupérer le secret
-      </button>
-    </form>
+        <div className='flex flex-col w-full items-center'>
+          <button
+            type="submit"
+            disabled={!secretId || !password}
+            className={`w-[50%] py-3 bg-[var(--button-bg)] text-[var(--button-font)] rounded transition-opacity ${!secretId || !password
+              ? 'opacity-50 cursor-not-allowed'
+              : 'hover:bg-[var(--button-hover)] focus:bg-[var(--button-hover)]'
+              }`}
+          >
+            Récupérer le secret
+          </button>
+        </div>
+      </form>
+    </div>
   );
 };

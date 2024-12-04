@@ -23,7 +23,7 @@ interface RetrieveSecretResponse {
   content: string;
   file: {
     originalName: string;
-    data: string; // Base64 encoded file
+    data: string;
   } | null;
   expirationDate: string | null;
   maxRetrievals: number | null;

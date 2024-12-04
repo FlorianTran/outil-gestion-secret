@@ -20,47 +20,48 @@ export default function ConfirmationPage() {
   };
 
   return (
-    <div style={{ padding: "2rem" }}>
-      <h1>Secret créé avec succès !</h1>
-      <p>Votre secret a été créé avec succès.</p>
-
-      <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-        <p>
-          <strong>ID du secret :</strong> {secretId}
-        </p>
-        {secretId && (
-          <div
-            onClick={handleCopy}
-            style={{
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              gap: "0.5rem",
-            }}
-            title="Copier dans le presse-papiers"
-          >
-            {copied ? (
-              <>
-                <FiCheck color="green" size={20} />
-                <span>Copié !</span>
-              </>
-            ) : (
-              <>
-                <FiClipboard size={20} />
-                <span>Copier</span>
-              </>
-            )}
+    <div className="flex justify-center items-center bg-background mt-12">
+      <div className="flex flex-col gap-11 w-full max-w-5xl bg-card-background border border-[var(--border)] rounded-xl p-8">
+        <h1 className="text-5xl font-semibold text-foreground">Secret créé avec succès !</h1>
+        <div className='flex flex-col gap-4'>
+          <div className="flex flex-col items-start gap-4 mt-4 w-full">
+            <p className='font-semibold'>ID du secret:</p>
+            <div className='flex w-full gap-6 items-center justify-between bg-[var(--inside-background)] p-2 px-6 rounded-md'>
+              <p className="text-font">
+                {secretId}
+              </p>
+              {secretId && (
+                <div
+                  onClick={handleCopy}
+                  className="cursor-pointer flex items-center gap-2 text-primary hover:text-primary-hover font-semibold text-[var(--secondary-font)]"
+                  title="Copier dans le presse-papiers"
+                >
+                  {copied ? (
+                    <>
+                      <FiCheck className="text-success text-[var(--secondary-font)]" size={20} />
+                      <span className="text-success text-[var(--secondary-font)]">Copié !</span>
+                    </>
+                  ) : (
+                    <>
+                      <FiClipboard size={20} />
+                      <span>Copier</span>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
-        )}
-      </div>
 
-      <p>
-        Gardez cet ID en sécurité ! Vous en aurez besoin pour récupérer votre secret.
-        Il ne sera plus affiché par la suite.
-      </p>
-      <a href="/create" style={{ color: "blue" }}>
-        Retour à l&apos;accueil
-      </a>
+            <p className="mt-4 text-secondary-font">
+            Gardez cet ID en sécurité !<br />
+            Vous en aurez besoin pour récupérer votre secret.
+            Il ne sera plus affiché par la suite sauf si vous êtes connecté.
+            </p>
+          <a href="/create" className="w-40 p-3 rounded-md mt-4 bg-[var(--button-bg)] text-[var(--button-font)] hover:bg-[var(--button-hover)] focus:bg-[var(--button-focus)]">
+            Retour à l&apos;accueil
+          </a>
+        </div>
+      </div>
     </div>
   );
 }

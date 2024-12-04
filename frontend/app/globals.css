@@ -4,13 +4,92 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #202020;
+  --inside-background: #f8f8f8;
+  --border: #e0e0e0;
+  --font: #202020;
+  --secondary-font: #474747;
+  --disabled-font: #b0b0b0;
+
+  --input-bg: #ffffff;
+  --input-border: #e0e0e0;
+  --input-error: #f8d7da;
+  --input-focus: #007bff;
+
+  --button-font: #ff4081;
+  --button-bg: #ff40801e;
+  --button-hover: #ff408044;
+  --button-focus: #ff408044;
+  --button-disabled-bg: #f0f0f0;
+
+  --secondary-button-bg: #424242;
+  --secondary-button-hover: #383838;
+  --secondary-button-focus: #383838;
+  --secondary-button-font: #ffffff;
+
+  --text-error: #dc3545;
+  --placeholder: #b6b6b6;
+
+  --primary: #0070f3;
+  --primary-hover: #005bb5;
+  --secondary: #383838;
+  --secondary-hover: #2e2e2e;
+  --accent: #ff4081;
+
+  --neutral-light: #f5f5f5;
+  --neutral-medium: #cfcfcf;
+  --neutral-dark: #333333;
+
+  --error: #ff4d4f;
+  --error-hover: #e43e3e;
+  --success: #28a745;
+  --success-hover: #218838;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+    --inside-background: #0d0d0d;
+    --border: #333;
+    --font: #f5f5f5;
+    --secondary-font: #9c9c9c;
+    --disabled-font: #2c2c2c;
+    --disabled-border: #333;
+
+    --input-bg: #0e0e0e;
+    --input-border: #444;
+    --input-error: #6c757d;
+    --input-focus: #1d72b8;
+    
+    --button-font: #087bff;
+    --button-bg: #0071f32c;
+    --button-hover: #0071f341;
+    --button-focus: #0071f341;
+    --button-disabled-bg: #444;
+
+    --secondary-button-bg: #424242;
+    --secondary-button-hover: #383838;
+    --secondary-button-focus: #383838;
+    --secondary-button-font: #ffffff;
+
+    --text-error: #dc3545;
+    --placeholder: #4d4d4d;
+
+    --primary: #0070f3;
+    --primary-hover: #005bb5;
+    --secondary: #383838;
+    --secondary-hover: #2e2e2e;
+    --accent: #0070f3;
+
+    --neutral-light: #2d2d2d;
+    --neutral-medium: #cfcfcf;
+    --neutral-dark: #ffffff;
+
+    --error: #ff4d4f;
+    --error-hover: #e43e3e;
+    --success: #28a745;
+    --success-hover: #218838;
   }
 }
 
@@ -19,17 +98,36 @@ body {
   background: var(--background);
 }
 
-.MuiDataGrid-root {
-  background-color: #ffffff;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+input::placeholder {
+  color: var(--placeholder);
 }
 
-.MuiDataGrid-columnHeader {
-  background-color: #f5f5f5;
-  font-weight: bold;
+.fileUploader {
+  justify-content: center;
+  height: 90% !important;
+  padding-left: 7% !important;
 }
 
-.MuiDataGrid-cell {
-  font-size: 14px;
+.loader {
+  border: 3px solid var(--neutral-light);
+  border-top: 3px solid var(--primary);
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.MuiDataGrid-pagination .MuiTablePagination-actions button {
+  color: var(--font) !important; /* Couleur des boutons de pagination */
+  background-color: var(--background) !important; /* Arrière-plan des boutons */
+  border: 1px solid var(--border) !important; /* Bordure des boutons */
 }

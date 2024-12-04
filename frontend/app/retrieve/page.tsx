@@ -8,7 +8,7 @@ import { SecretViewer } from './components/secretViewer';
 export default function RetrievePage() {
     const [secret, setSecret] = useState<string | null>(null);
     const [fileName, setFileName] = useState<string | null>(null);
-    const [fileData, setFileData] = useState<string | null>(null); // For base64 file
+    const [fileData, setFileData] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [isSecretView, setIsSecretView] = useState(false);
     const [password, setPassword] = useState<string | null>(null);
@@ -28,7 +28,7 @@ export default function RetrievePage() {
             setSecret(data.content);
             if (data.file) {
                 setFileName(data.file.originalName);
-                setFileData(data.file.data); // Base64 encoded
+                setFileData(data.file.data);
             }
             setIsSecretView(true);
         } catch (err: any) {
